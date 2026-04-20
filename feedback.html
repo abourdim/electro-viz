@@ -1,0 +1,27 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Feedback pos/neg</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const W=500,H=120;
+  const n = Math.max(2, s.hist.length);
+  const pts = s.hist.map((v,i)=>`${(i/(n-1))*W},${H/2 - v*1.5}`).join(' ');
+  return `<svg viewBox="0 0 540 240">
+    <rect x="10" y="10" width="${W+20}" height="${H+20}" fill="#0A0F1E" stroke="#FFD700" stroke-width="3" rx="8"/>
+    <polyline points="${pts}" fill="none" stroke="${s.mode==='pos'?'#E63946':'#40BF4A'}" stroke-width="2.5" transform="translate(10,10)"/>
+    <text x="20" y="28" font-size="12" fill="${s.mode==='pos'?'#E63946':'#40BF4A'}" font-weight="bold">${s.mode==='pos'?'🔥 POSITIVE feedback — runaway/oscillation':'🛡️ NEGATIVE feedback — stable amplifier'}</text>
+    <text x="20" y="170" font-size="13" font-weight="bold" fill="#264653">every circuit is one of these. Swap one wire — flip modes.</text>
+    <text x="20" y="195" font-size="11" fill="#264653">neg fb → amplifiers, voltage regulators, thermostats</text>
+    <text x="20" y="215" font-size="11" fill="#264653">pos fb → oscillators, Schmitt triggers, memory cells</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🧬 Feedback — Positive vs Negative',subtitle:'One wire decides everything!',
+  vars:{mode:{label:'🔀 mode',value:'neg',color:'#40BF4A'}},
+  extras:[{kind:'toggle',id:'mT',label:'Positive feedback',value:false,onToggle(v,s){s.mode=v?'pos':'neg';}}],
+  lines:['Input disturbs the system','Output fed back as correction (neg) OR boost (pos)','Neg: error shrinks → stable','Pos: error grows → runaway or lock'],
+  phases:['disturb','feedback','settle','result'],onInit(s){s.mode='neg';s.hist=[];s.val=0;s.t=0;},onReset(s){s.mode='neg';s.hist=[];s.val=0;s.t=0;},stage,
+  run(p,s,ui){const n=['disturb','feedback','settle','result'].indexOf(p)+1;ui.activeLine(n);s.t+=0.2;
+    if(s.mode==='pos'){s.val=Math.sin(s.t*2)*60*(1+s.t*0.01);if(s.val>60)s.val=60;if(s.val<-60)s.val=-60;}
+    else{s.val=s.val*0.85+(Math.random()-0.5)*4;}
+    s.hist.push(s.val);if(s.hist.length>80)s.hist.shift();ui.setVar('mode',s.mode.toUpperCase(),{display:s.mode.toUpperCase()});}
+});
+</script></body></html>

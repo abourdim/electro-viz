@@ -1,0 +1,30 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Transistor Valve</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const Ic = s.Ib * s.hFE;
+  const flowW = Math.min(60, Ic*2);
+  return `<svg viewBox="0 0 540 260">
+    <rect width="540" height="260" fill="#F4E8CB"/>
+    <!-- collector stream -->
+    <rect x="120" y="${60 + (60-flowW)/2}" width="300" height="${flowW}" fill="#457B9D"/>
+    <!-- base tap -->
+    <rect x="40" y="${130}" width="${10 + s.Ib*20}" height="${10 + s.Ib*20}" fill="#FF6B35"/>
+    <text x="55" y="${125}" text-anchor="middle" font-size="11" font-weight="bold" fill="#264653">Base ${s.Ib.toFixed(1)}mA</text>
+    <!-- valve -->
+    <g transform="translate(270,90)"><circle r="30" fill="#FFD700" stroke="#264653" stroke-width="3"/><text y="4" text-anchor="middle" font-size="10" font-weight="bold">TRANSISTOR</text></g>
+    <text x="270" y="200" text-anchor="middle" font-size="14" font-weight="bold" fill="#264653">Collector current = Base × ${s.hFE} = ${Ic.toFixed(1)} mA</text>
+    <text x="270" y="225" text-anchor="middle" font-size="11" fill="#264653">small water → big water. That's amplification.</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🚰 Transistor = Valve',subtitle:'Tiny base current controls big collector current',
+  vars:{Ib:{label:'Ib',value:1,color:'#FF6B35',note:'mA'},Ic:{label:'Ic',value:100,color:'#457B9D'}},
+  extras:[{kind:'slider',id:'bS',label:'Base mA',min:0,max:5,value:1,step:0.1,onInput(v,s){s.Ib=v;}},{kind:'slider',id:'hS',label:'hFE (gain)',min:20,max:300,value:100,step:10,onInput(v,s){s.hFE=v;}}],
+  lines:['Small current enters BASE','valve opens proportionally','Ic = Ib × hFE (gain)','big current flows collector'],
+  phases:['base','open','gain','flow'],
+  onInit(s){s.Ib=1;s.hFE=100;s.Ic=0;},onReset(s){s.Ib=1;s.hFE=100;s.Ic=0;},stage,
+  run(phase,s,ui){const n=['base','open','gain','flow'].indexOf(phase)+1;ui.activeLine(n);
+    if(phase==='gain'){s.Ic=s.Ib*s.hFE;ui.setVar('Ic',s.Ic,{display:s.Ic.toFixed(0)+'mA',flash:true});}
+  }
+});
+</script></body></html>

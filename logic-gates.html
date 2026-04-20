@@ -1,0 +1,31 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Logic Gates</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+const GATES={AND:(a,b)=>a&b,OR:(a,b)=>a|b,XOR:(a,b)=>a^b,NAND:(a,b)=>1-(a&b),NOR:(a,b)=>1-(a|b)};
+function stage(s){
+  const out=GATES[s.gate](s.A,s.B);
+  const rows=[[0,0],[0,1],[1,0],[1,1]];
+  return `<svg viewBox="0 0 540 260">
+    <rect width="540" height="260" fill="#F4E8CB"/>
+    <g transform="translate(70,90)"><circle r="18" fill="${s.A?'#40BF4A':'#666'}" stroke="#264653" stroke-width="2"/><text y="4" text-anchor="middle" font-size="14" font-weight="bold" fill="#FFF">${s.A}</text><text y="38" text-anchor="middle" font-size="12" font-weight="bold" fill="#264653">A</text></g>
+    <g transform="translate(70,180)"><circle r="18" fill="${s.B?'#40BF4A':'#666'}" stroke="#264653" stroke-width="2"/><text y="4" text-anchor="middle" font-size="14" font-weight="bold" fill="#FFF">${s.B}</text><text y="38" text-anchor="middle" font-size="12" font-weight="bold" fill="#264653">B</text></g>
+    <line x1="88" y1="90" x2="220" y2="90" stroke="#264653" stroke-width="2"/>
+    <line x1="88" y1="180" x2="220" y2="180" stroke="#264653" stroke-width="2"/>
+    <g transform="translate(220,110)"><rect width="100" height="50" rx="8" fill="#FFD700" stroke="#264653" stroke-width="3"/><text x="50" y="30" text-anchor="middle" font-weight="bold" font-size="16" fill="#264653">${s.gate}</text></g>
+    <line x1="320" y1="135" x2="400" y2="135" stroke="#264653" stroke-width="2"/>
+    <g transform="translate(420,135)"><circle r="24" fill="${out?'#E63946':'#666'}" stroke="#264653" stroke-width="3"/><text y="6" text-anchor="middle" font-size="18" font-weight="bold" fill="#FFF">${out}</text><text y="42" text-anchor="middle" font-size="11" fill="#264653">out</text></g>
+    <g transform="translate(20,20)"><text font-size="11" font-weight="bold" fill="#264653">truth table:</text>${rows.map(([a,b],i)=>`<text y="${18+i*14}" font-size="10" fill="${(a===s.A&&b===s.B)?'#E63946':'#666'}" font-weight="${(a===s.A&&b===s.B)?'bold':'normal'}">${a} ${b} → ${GATES[s.gate](a,b)}</text>`).join('')}</g>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🧠 Logic Gates',subtitle:'AND, OR, XOR — the building blocks of every computer!',
+  vars:{out:{label:'🔴 out',value:0,color:'#E63946'}},
+  extras:[{kind:'toggle',id:'aT',label:'A',value:false,onToggle(v,s){s.A=v?1:0;}},{kind:'toggle',id:'bT',label:'B',value:false,onToggle(v,s){s.B=v?1:0;}}],
+  lines:['READ inputs A, B','APPLY gate function','OUTPUT true/false','NEXT gate (AND→OR→XOR…)'],
+  phases:['read','apply','show','next'],
+  onInit(s){s.A=0;s.B=0;s.gate='AND';s.gateIdx=0;},onReset(s){s.A=0;s.B=0;s.gate='AND';s.gateIdx=0;},stage,
+  run(phase,s,ui){const n=['read','apply','show','next'].indexOf(phase)+1;ui.activeLine(n);
+    if(phase==='apply'){const o=GATES[s.gate](s.A,s.B);ui.setVar('out',o,{display:String(o),flash:true});ui.narrate(`${s.A} ${s.gate} ${s.B} = ${o}`);}
+    else if(phase==='next'){const gates=['AND','OR','XOR','NAND','NOR'];s.gateIdx=(s.gateIdx+1)%gates.length;s.gate=gates[s.gateIdx];ui.narrate('→ '+s.gate);}
+  }
+});
+</script></body></html>

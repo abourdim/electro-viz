@@ -1,0 +1,36 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Polarity</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const forward = s.forward;
+  return `<svg viewBox="0 0 540 240">
+    <rect width="540" height="240" fill="#F4E8CB"/>
+    <g transform="translate(40,100)"><rect width="60" height="60" fill="#FFD700" stroke="#264653" stroke-width="3"/><text x="30" y="28" text-anchor="middle" font-size="14" font-weight="bold" fill="#E63946">+</text><text x="30" y="50" text-anchor="middle" font-size="14" font-weight="bold" fill="#264653">−</text></g>
+    <text x="70" y="180" text-anchor="middle" font-size="11" font-weight="bold" fill="${forward?'#264653':'#E63946'}">${forward?'CORRECT':'REVERSED'}</text>
+    <g transform="translate(130,115)"><text font-size="28" fill="${forward?'#40BF4A':'#E63946'}">${forward?'▶':'◀'}</text></g>
+    <g transform="translate(200,100)">
+      <path d="M 0 30 L 30 0 L 30 60 Z" fill="${forward?'#40BF4A':'#CCC'}" stroke="#264653" stroke-width="2"/>
+      <line x1="30" y1="0" x2="30" y2="60" stroke="#264653" stroke-width="3"/>
+      <text x="15" y="80" text-anchor="middle" font-size="11" font-weight="bold">diode</text>
+    </g>
+    <g transform="translate(280,100)">
+      <circle cx="30" cy="30" r="28" fill="${forward?'#E63946':'#2B2B2B'}" stroke="#264653" stroke-width="3"/>
+      ${forward?'':'<text x="30" y="36" text-anchor="middle" font-size="18">💥</text>'}
+      <text x="30" y="80" text-anchor="middle" font-size="11" font-weight="bold">LED</text>
+    </g>
+    <g transform="translate(360,100)">
+      <rect x="0" y="0" width="60" height="60" fill="${forward?'#A8DADC':'#E63946'}" stroke="#264653" stroke-width="3" rx="4"/>
+      <text x="30" y="34" text-anchor="middle" font-size="18">${forward?'🧊':'💥'}</text>
+      <text x="30" y="80" text-anchor="middle" font-size="11" font-weight="bold">electrolytic cap</text>
+    </g>
+    <text x="270" y="220" text-anchor="middle" font-size="12" font-weight="bold" fill="${forward?'#40BF4A':'#E63946'}">${forward?'✅ all forward-biased':'⚠️ reversed — diode blocks, LED dark, cap POPS!'}</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🔄 Polarity Matters',subtitle:'+ and − markings aren\'t decoration!',
+  vars:{forward:{label:'▶️ direction',value:'forward',color:'#40BF4A'}},
+  extras:[{kind:'toggle',id:'fT',label:'Forward',value:true,onToggle(v,s){s.forward=v;}}],
+  lines:['Battery has +/− polarity','Components have polarity too','Forward: diode conducts, LED lights','Reverse: diode blocks, cap EXPLODES'],
+  phases:['check','diode','led','cap'],onInit(s){s.forward=true;},onReset(s){s.forward=true;},stage,
+  run(p,s,ui){const n=['check','diode','led','cap'].indexOf(p)+1;ui.activeLine(n);if(!s.forward&&p==='cap'){ui.check(4,true);ui.narrate('💥 electrolytic POPPED');}}
+});
+</script></body></html>

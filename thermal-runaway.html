@@ -1,0 +1,27 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Thermal runaway</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const burnt = s.T > 150;
+  return `<svg viewBox="0 0 540 240">
+    <rect width="540" height="240" fill="#F4E8CB"/>
+    <g transform="translate(220,90)">
+      <circle r="${Math.min(40, s.T/4 + 15)}" fill="${burnt?'#2B2B2B':s.T>80?'#E63946':s.T>40?'#FFD700':'#666'}" stroke="#264653" stroke-width="3"/>
+      ${burnt?'<text y="4" text-anchor="middle" font-size="20">💥</text>':''}
+      <text y="60" text-anchor="middle" font-size="12" font-weight="bold" fill="#264653">T=${s.T.toFixed(0)}°C · I=${s.I.toFixed(2)}A</text>
+    </g>
+    <g transform="translate(320,180)">
+      <text font-size="12" font-weight="bold" fill="#264653">T↑ → gain↑ → I↑ → T↑ 🔁</text>
+      <text y="18" font-size="11" fill="${s.sink?'#40BF4A':'#E63946'}" font-weight="bold">${s.sink?'✅ heatsink breaks loop':'⚠️ no heatsink — runaway!'}</text>
+    </g>
+    <text x="270" y="30" text-anchor="middle" font-size="13" font-weight="bold" fill="${burnt?'#E63946':'#264653'}">${burnt?'💥 TRANSISTOR DIED':'thermal runaway lab'}</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🔥 Thermal Runaway',subtitle:'Positive feedback that kills transistors!',
+  vars:{T:{label:'🌡️ T',value:25,color:'#E63946'},I:{label:'💧 I',value:0.2,color:'#FFD700'}},
+  extras:[{kind:'toggle',id:'hT',label:'🧊 Heatsink',value:true,onToggle(v,s){s.sink=v;}}],
+  lines:['T rises → transistor gain rises','Gain up → more current','More current → more heat','Loop runs away without heatsink'],
+  phases:['heat','gain','more','check'],onInit(s){s.T=25;s.I=0.2;s.sink=true;},onReset(s){s.T=25;s.I=0.2;s.sink=true;},stage,
+  run(p,s,ui){const n=['heat','gain','more','check'].indexOf(p)+1;ui.activeLine(n);if(p==='more'){if(s.T<150){s.I=0.2*(1+(s.T-25)/50);s.T+=s.I*10*(s.sink?0.15:1);}ui.setVar('T',s.T,{display:s.T.toFixed(0)+'°',flash:true});ui.setVar('I',s.I,{display:s.I.toFixed(2)+'A'});}}
+});
+</script></body></html>

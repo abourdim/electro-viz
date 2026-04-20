@@ -1,0 +1,39 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Hardware RNG</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const digits = s.digits.slice(-24);
+  return `<svg viewBox="0 0 540 240">
+    <rect width="540" height="240" fill="#0A0F1E"/>
+    <g transform="translate(20,40)">
+      <rect width="160" height="60" fill="#E63946" stroke="#FFD700" stroke-width="2" rx="4"/>
+      <text x="80" y="22" text-anchor="middle" font-size="11" font-weight="bold" fill="#FFD700">noisy resistor</text>
+      <text x="80" y="46" text-anchor="middle" font-size="10" fill="#FFF">${((Math.random()-0.5)*200).toFixed(0)}µV</text>
+    </g>
+    <text x="195" y="75" font-size="18" fill="#FFD700">→</text>
+    <g transform="translate(220,40)">
+      <rect width="120" height="60" fill="#457B9D" stroke="#FFD700" stroke-width="2" rx="4"/>
+      <text x="60" y="22" text-anchor="middle" font-size="11" font-weight="bold" fill="#FFD700">comparator</text>
+      <text x="60" y="46" text-anchor="middle" font-size="10" fill="#FFF">0 or 1</text>
+    </g>
+    <text x="355" y="75" font-size="18" fill="#FFD700">→</text>
+    <g transform="translate(380,40)">
+      <rect width="140" height="60" fill="#40BF4A" stroke="#FFD700" stroke-width="2" rx="4"/>
+      <text x="70" y="22" text-anchor="middle" font-size="11" font-weight="bold" fill="#FFD700">bit stream</text>
+      <text x="70" y="46" text-anchor="middle" font-size="10" fill="#FFF" font-family="monospace">${digits.slice(-8).join('')}</text>
+    </g>
+    <g transform="translate(20,130)">
+      <rect width="500" height="80" fill="#2B2B2B" stroke="#FFD700" stroke-width="2" rx="4"/>
+      <text x="250" y="22" text-anchor="middle" font-size="11" font-weight="bold" fill="#FFD700">history</text>
+      <text x="250" y="50" text-anchor="middle" font-size="20" fill="#40BF4A" font-family="monospace" font-weight="bold">${digits.join(' ')}</text>
+      <text x="250" y="70" text-anchor="middle" font-size="10" fill="#FFF">crypto-safe randomness — no seed, no formula, just physics</text>
+    </g>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🎲 Hardware RNG',subtitle:'Thermal noise → true random bits!',
+  vars:{digits:{label:'🔢 bits',value:0,color:'#40BF4A'}},
+  lines:['Sample noisy voltage','Compare to threshold (above = 1, below = 0)','Append bit to stream','Repeat forever — each bit truly random'],
+  phases:['sample','compare','append','loop'],onInit(s){s.digits=[];},onReset(s){s.digits=[];},stage,
+  run(p,s,ui){const n=['sample','compare','append','loop'].indexOf(p)+1;ui.activeLine(n);if(p==='append'){s.digits.push(Math.random()>0.5?1:0);if(s.digits.length>24)s.digits.shift();ui.setVar('digits',s.digits.length,{});}}
+});
+</script></body></html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>RC Low-Pass Filter</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const W=460,H=60,N=100;
+  const fc=1/(2*Math.PI*s.R*s.C/1000);
+  const gain=1/Math.sqrt(1+Math.pow(s.freq/fc,2));
+  const input=Array.from({length:N},(_,i)=>i%(N/s.freq)<(N/s.freq/2)?1:-1);
+  // rough approx of filtered
+  const filt=[];
+  let last=0;
+  const a=1/(1+s.R*s.C/50);
+  for(let v of input){last=last+a*(v-last);filt.push(last);}
+  const plot=(arr,y,c)=>{const pts=arr.map((v,i)=>`${(i/(N-1))*W},${y+H/2 - v*H/2*0.8}`).join(' ');return `<polyline points="${pts}" fill="none" stroke="${c}" stroke-width="2"/>`;}
+  return `<svg viewBox="0 0 540 260">
+    <rect x="10" y="10" width="${W+20}" height="${H+20}" fill="#0A0F1E" stroke="#FFD700" stroke-width="2" rx="6"/>
+    <text x="20" y="26" fill="#E63946" font-size="10" font-weight="bold">INPUT (square)</text>
+    ${plot(input,30,'#E63946')}
+    <rect x="10" y="110" width="${W+20}" height="${H+20}" fill="#0A0F1E" stroke="#FFD700" stroke-width="2" rx="6"/>
+    <text x="20" y="126" fill="#40BF4A" font-size="10" font-weight="bold">OUTPUT (filtered)</text>
+    ${plot(filt,130,'#40BF4A')}
+    <text x="270" y="220" text-anchor="middle" font-size="12" font-weight="bold" fill="#264653">fc = 1/(2πRC) = ${fc.toFixed(0)} Hz · input freq = ${s.freq} × fc · gain ≈ ${gain.toFixed(2)}</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🎚️ RC Low-Pass Filter',subtitle:'Fast signals rounded away — R-C as slow switch for C',
+  vars:{fc:{label:'fc',value:0,color:'#FFD700'}},
+  extras:[{kind:'slider',id:'rS',label:'R',min:1,max:50,value:10,step:1,onInput(v,s){s.R=v;}},{kind:'slider',id:'cS',label:'C',min:1,max:50,value:10,step:1,onInput(v,s){s.C=v;}},{kind:'slider',id:'fS',label:'freq',min:1,max:10,value:3,step:1,onInput(v,s){s.freq=v;}}],
+  lines:['READ R, C → fc','COMPARE signal freq to fc','Low freq → pass through','High freq → attenuated'],
+  phases:['fc','compare','pass','block'],
+  onInit(s){s.R=10;s.C=10;s.freq=3;},onReset(s){s.R=10;s.C=10;s.freq=3;},stage,
+  run(phase,s,ui){const n=['fc','compare','pass','block'].indexOf(phase)+1;ui.activeLine(n);
+    if(phase==='fc'){const f=1/(2*Math.PI*s.R*s.C/1000);ui.setVar('fc',f,{display:f.toFixed(0)+'Hz',flash:true});}
+  }
+});
+</script></body></html>

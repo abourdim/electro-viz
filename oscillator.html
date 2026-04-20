@@ -1,0 +1,24 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Oscillator from thin air</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const osc = s.coupling > 50;
+  const W=500,H=120;
+  const n = Math.max(2, s.hist.length);
+  const pts = s.hist.map((v,i)=>`${(i/(n-1))*W},${H/2 - v*20}`).join(' ');
+  return `<svg viewBox="0 0 540 240">
+    <rect x="10" y="10" width="${W+20}" height="${H+20}" fill="#0A0F1E" stroke="#FFD700" stroke-width="3" rx="8"/>
+    <polyline points="${pts}" fill="none" stroke="${osc?'#40BF4A':'#FFD700'}" stroke-width="2" transform="translate(10,10)"/>
+    <text x="20" y="30" font-size="11" fill="${osc?'#40BF4A':'#FFD700'}" font-weight="bold">${osc?'🔁 OSCILLATING':'🟡 stable (but noisy)'}</text>
+    <text x="20" y="170" font-size="12" font-weight="bold" fill="#264653">coupling=${s.coupling}% · cross-coupled transistors amplify their own noise</text>
+    <text x="20" y="195" font-size="11" fill="#264653">↑ bifurcation point at 50% → stable ⇒ oscillator</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🌀 Oscillator From Thin Air',evendisabled:true,subtitle:'Noise + feedback = rhythm!',
+  vars:{coupling:{label:'🔗 coupling',value:0,color:'#FF6B35'}},
+  extras:[{kind:'slider',id:'cS',label:'Coupling %',min:0,max:100,value:0,step:5,onInput(v,s){s.coupling=v;}}],
+  lines:['Tiny noise in the circuit','Amplified by transistors','Fed back to input','Above threshold → oscillates'],
+  phases:['noise','amp','feedback','bifurcate'],onInit(s){s.coupling=0;s.hist=[];s.t=0;},onReset(s){s.coupling=0;s.hist=[];s.t=0;},stage,
+  run(p,s,ui){const n=['noise','amp','feedback','bifurcate'].indexOf(p)+1;ui.activeLine(n);s.t+=0.3;const v=s.coupling>50?Math.sin(s.t)*(s.coupling/80):(Math.random()-0.5)*0.5;s.hist.push(v);if(s.hist.length>80)s.hist.shift();}
+});
+</script></body></html>

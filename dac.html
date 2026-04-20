@@ -1,0 +1,37 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>DAC</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const W=500, H=120;
+  const N = s.samples.length;
+  const stairs = s.samples.map((v,i) => {
+    const x0 = (i/N)*W, x1 = ((i+1)/N)*W;
+    return `${x0},${H-v*H/255} ${x1},${H-v*H/255}`;
+  }).join(' ');
+  // RC smoothed: simple exponential interp
+  let smoothPts = [];
+  let val = 0;
+  for (let i = 0; i < N*10; i++) {
+    const idx = Math.min(N-1, Math.floor(i/10));
+    val = val*0.7 + s.samples[idx]*0.3;
+    smoothPts.push(`${(i/(N*10))*W},${H - val*H/255}`);
+  }
+  return `<svg viewBox="0 0 540 240">
+    <rect x="10" y="10" width="${W+20}" height="${H+20}" fill="#0A0F1E" stroke="#FFD700" stroke-width="3" rx="8"/>
+    <polyline points="${stairs}" fill="none" stroke="#FFD700" stroke-width="2" transform="translate(10,10)"/>
+    <polyline points="${smoothPts.join(' ')}" fill="none" stroke="#40BF4A" stroke-width="2" transform="translate(10,10)"/>
+    <text x="20" y="30" font-size="11" fill="#FFD700" font-weight="bold">raw staircase</text>
+    <text x="130" y="30" font-size="11" fill="#40BF4A" font-weight="bold">RC-smoothed</text>
+    <g transform="translate(20,170)">
+      <text font-size="12" font-weight="bold" fill="#264653">samples: [${s.samples.map(v=>v).join(', ')}]</text>
+      <text y="22" font-size="11" fill="#264653">numbers → voltages → smoothed wave → sound!</text>
+    </g>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🎼 DAC',subtitle:'Code numbers → analog wave → music!',
+  vars:{idx:{label:'📍 idx',value:0,color:'#FFD700'}},
+  lines:['Load sample array','DAC outputs one voltage per sample','RC filter smooths the staircase','Wave becomes audio'],
+  phases:['load','output','smooth','play'],onInit(s){s.samples=[128,200,240,200,128,56,16,56];s.idx=0;},onReset(s){s.idx=0;},stage,
+  run(p,s,ui){const n=['load','output','smooth','play'].indexOf(p)+1;ui.activeLine(n);if(p==='output'){s.idx=(s.idx+1)%s.samples.length;ui.setVar('idx',s.idx,{flash:true});}}
+});
+</script></body></html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Battery Capacity</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const pct = s.remaining / s.capacity * 100;
+  const hours = s.draw > 0 ? s.remaining / s.draw : Infinity;
+  const color = pct > 50 ? '#40BF4A' : pct > 20 ? '#FFD700' : '#E63946';
+  return `<svg viewBox="0 0 540 240">
+    <rect width="540" height="240" fill="#F4E8CB"/>
+    <g transform="translate(40,60)">
+      <rect width="260" height="100" rx="12" fill="#EEE" stroke="#264653" stroke-width="4"/>
+      <rect x="260" y="30" width="18" height="40" fill="#264653"/>
+      <rect x="8" y="8" width="${(pct/100)*244}" height="84" fill="${color}" rx="8"/>
+      <text x="130" y="65" text-anchor="middle" font-size="22" font-weight="bold" fill="#FFF">${Math.round(s.remaining)} mAh</text>
+    </g>
+    <text x="170" y="190" text-anchor="middle" font-size="13" fill="#264653" font-weight="bold">${hours===Infinity?'∞':hours.toFixed(1)} h remaining</text>
+    <g transform="translate(340,80)"><rect width="160" height="70" rx="6" fill="#FFF" stroke="#264653" stroke-width="2"/><text x="80" y="20" text-anchor="middle" font-size="11" font-weight="bold" fill="#264653">LOAD</text><text x="80" y="50" text-anchor="middle" font-size="22" font-weight="bold" fill="#E63946">${s.draw}mA</text></g>
+    <text x="420" y="190" text-anchor="middle" font-size="11" fill="#264653">capacity = ${s.capacity} mAh</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🔋 Battery Capacity',subtitle:'mAh × hours = how long you fly!',
+  vars:{remaining:{label:'🔋 mAh',value:2000,color:'#40BF4A'},hours:{label:'⏱️ h',value:0,color:'#264653'}},
+  extras:[{kind:'slider',id:'cS',label:'Capacity mAh',min:500,max:5000,value:2000,step:100,onInput(v,s){s.capacity=v;s.remaining=v;}},{kind:'slider',id:'dS',label:'Draw mA',min:10,max:1000,value:100,step:10,onInput(v,s){s.draw=v;}}],
+  lines:['READ capacity + draw','hours = capacity / draw','Each tick → consume draw','WHEN empty → zero'],
+  phases:['read','divide','consume','check'],
+  onInit(s){s.capacity=2000;s.remaining=2000;s.draw=100;},onReset(s){s.remaining=s.capacity;},stage,
+  run(phase,s,ui){const n=['read','divide','consume','check'].indexOf(phase)+1;ui.activeLine(n);
+    if(phase==='divide'){const h=s.remaining/Math.max(1,s.draw);ui.setVar('hours',h,{display:h.toFixed(1)+'h',flash:true});}
+    else if(phase==='consume'){s.remaining=Math.max(0,s.remaining-s.draw/30);ui.setVar('remaining',s.remaining,{display:Math.round(s.remaining),flash:true});}
+    else if(phase==='check'){if(s.remaining<=0){ui.narrate('🪫 empty!');ui.check(4,true);}}
+  }
+});
+</script></body></html>

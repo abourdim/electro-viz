@@ -1,0 +1,35 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Breadboard Wiring</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const rows = 10, cols = 12;
+  let svg = '<rect width="540" height="240" fill="#F4E8CB"/>';
+  // top rail
+  svg += `<rect x="20" y="20" width="500" height="18" fill="#E63946" opacity="${s.rail?0.6:0.15}"/><text x="25" y="32" font-size="10" fill="#FFF" font-weight="bold">+ RAIL (connected)</text>`;
+  // bottom rail
+  svg += `<rect x="20" y="200" width="500" height="18" fill="#264653" opacity="${s.rail?0.6:0.15}"/><text x="25" y="212" font-size="10" fill="#FFF" font-weight="bold">− RAIL</text>`;
+  // holes
+  for (let r=0; r<rows; r++) {
+    for (let c=0; c<cols; c++) {
+      const x = 50 + c*35, y = 60 + r*12;
+      const groupLeft = c < 5;
+      const highlight = s.showConn && groupLeft === (s.highlightGroup < 5);
+      svg += `<circle cx="${x}" cy="${y}" r="4" fill="${highlight?'#FFD700':'#EEE'}" stroke="#264653" stroke-width="1"/>`;
+    }
+    if (r === 4) svg += `<line x1="40" y1="${60 + r*12 + 6}" x2="500" y2="${60 + r*12 + 6}" stroke="#264653" stroke-dasharray="2 2"/>`;
+  }
+  svg += `<text x="270" y="235" text-anchor="middle" font-size="12" font-weight="bold" fill="#264653">${s.showConn?'Highlighted column = one electrical node':'Holes look alike but only columns of 5 connect'}</text>`;
+  return `<svg viewBox="0 0 540 250">${svg}</svg>`;
+}
+MakerViz.create({mount:'#app',title:'🔘 Breadboard Wiring',subtitle:'Which holes are really connected?',
+  vars:{rail:{label:'🚂 rails',value:0,color:'#E63946'}},
+  extras:[{kind:'toggle',id:'cT',label:'🔍 Show connections',value:false,onToggle(v,s){s.showConn=v;}},{kind:'toggle',id:'rT',label:'⚡ Power rails',value:false,onToggle(v,s){s.rail=v;}}],
+  lines:['TOP / BOTTOM rails run horizontally (+ and −)','Middle holes in columns of 5','Center gap BREAKS column (for IC legs)','WIRE jumpers join other rows'],
+  phases:['rails','cols','gap','wire'],
+  onInit(s){s.rail=false;s.showConn=false;s.highlightGroup=2;},onReset(s){s.rail=false;s.showConn=false;},stage,
+  run(phase,s,ui){const n=['rails','cols','gap','wire'].indexOf(phase)+1;ui.activeLine(n);
+    if(phase==='cols')s.highlightGroup=2;
+    if(phase==='gap')ui.narrate('the gap separates rows 1-5 from 6-10');
+  }
+});
+</script></body></html>

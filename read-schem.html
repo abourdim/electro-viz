@@ -1,0 +1,51 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Read this schematic</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const active = ['none','battery','switch','resistor','led','complete'][s.step];
+  const glow = id => active === id ? '#FF6B35' : '#264653';
+  const wd = id => active === id ? 4 : 2;
+  const trace = s.step >= 5;
+  return `<svg viewBox="0 0 540 240">
+    <rect width="540" height="240" fill="#F4E8CB"/>
+    <g transform="translate(60,60)">
+      <line x1="0" y1="0" x2="0" y2="120" stroke="${glow('battery')}" stroke-width="${wd('battery')}"/>
+      <line x1="-10" y1="0" x2="10" y2="0" stroke="${glow('battery')}" stroke-width="${wd('battery')}"/>
+      <line x1="-5" y1="6" x2="5" y2="6" stroke="${glow('battery')}" stroke-width="${wd('battery')}"/>
+      <line x1="-10" y1="12" x2="10" y2="12" stroke="${glow('battery')}" stroke-width="${wd('battery')}"/>
+      <line x1="-5" y1="18" x2="5" y2="18" stroke="${glow('battery')}" stroke-width="${wd('battery')}"/>
+      <text x="-22" y="14" font-size="11" font-weight="bold" fill="${glow('battery')}">3V</text>
+    </g>
+    <line x1="60" y1="60" x2="170" y2="60" stroke="${trace?'#FFD700':'#264653'}" stroke-width="${trace?4:2}"/>
+    <g transform="translate(170,45)">
+      <line x1="0" y1="15" x2="15" y2="15" stroke="${glow('switch')}" stroke-width="${wd('switch')}"/>
+      <line x1="15" y1="15" x2="28" y2="0" stroke="${glow('switch')}" stroke-width="${wd('switch')}"/>
+      <circle cx="15" cy="15" r="2" fill="${glow('switch')}"/>
+      <circle cx="30" cy="15" r="2" fill="${glow('switch')}"/>
+      <line x1="30" y1="15" x2="60" y2="15" stroke="${glow('switch')}" stroke-width="${wd('switch')}"/>
+      <text x="15" y="-4" font-size="10" fill="${glow('switch')}" font-weight="bold">switch</text>
+    </g>
+    <g transform="translate(260,40)">
+      <path d="M 0 20 L 10 5 L 20 35 L 30 5 L 40 35 L 50 5 L 60 20" fill="none" stroke="${glow('resistor')}" stroke-width="${wd('resistor')}"/>
+      <text x="30" y="-4" font-size="10" fill="${glow('resistor')}" font-weight="bold">150Ω</text>
+    </g>
+    <line x1="320" y1="60" x2="400" y2="60" stroke="${trace?'#FFD700':'#264653'}" stroke-width="${trace?4:2}"/>
+    <g transform="translate(400,50)">
+      <circle cx="0" cy="10" r="10" fill="none" stroke="${glow('led')}" stroke-width="${wd('led')}"/>
+      <polygon points="-6,6 6,10 -6,14" fill="${glow('led')}"/>
+      <line x1="-6" y1="14" x2="6" y2="14" stroke="${glow('led')}" stroke-width="${wd('led')}"/>
+      <text x="-16" y="-2" font-size="11" font-weight="bold" fill="${glow('led')}">LED</text>
+    </g>
+    <line x1="400" y1="60" x2="400" y2="180" stroke="#264653" stroke-width="2"/>
+    <line x1="60" y1="180" x2="400" y2="180" stroke="#264653" stroke-width="2"/>
+    <text x="270" y="220" text-anchor="middle" font-size="13" font-weight="bold" fill="#264653">${['drag slider through the parts →','①  battery 3V','②  switch (press to close)','③  resistor — limits current','④  LED — lights up','✅ current flows!'][s.step]}</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'📜 Read This Schematic',subtitle:'Learn every symbol!',
+  vars:{step:{label:'📍 step',value:0,color:'#FF6B35'}},
+  extras:[{kind:'slider',id:'sS',label:'Walk-through step',min:0,max:5,value:0,step:1,onInput(v,s){s.step=v;}}],
+  lines:['Identify power source (battery)','Identify inputs (switches)','Identify limiters (resistors)','Identify outputs (LEDs)'],
+  phases:['power','inputs','limiters','outputs'],onInit(s){s.step=0;},onReset(s){s.step=0;},stage,
+  run(p,s,ui){const n=['power','inputs','limiters','outputs'].indexOf(p)+1;ui.activeLine(n);}
+});
+</script></body></html>

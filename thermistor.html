@@ -1,0 +1,36 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Thermistor</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  // NTC: R drops with T
+  const R_T = 10000 * Math.exp(3950 * (1/(s.T+273) - 1/298));
+  const Vout = 5 * (10000 / (10000 + R_T));
+  const hot = s.T > 30;
+  return `<svg viewBox="0 0 540 260">
+    <rect width="540" height="260" fill="#F4E8CB"/>
+    <g transform="translate(40,70)">
+      <rect width="60" height="100" fill="#FFF" stroke="#264653" stroke-width="3" rx="6"/>
+      <rect x="10" y="${100-s.T*2-20}" width="40" height="${s.T*2+20}" fill="${hot?'#E63946':'#457B9D'}"/>
+      <text x="30" y="130" text-anchor="middle" font-size="13" font-weight="bold" fill="#264653">${s.T}°C</text>
+    </g>
+    <g transform="translate(140,100)">
+      <text font-size="12" fill="#264653" font-weight="bold">R(T) = ${(R_T/1000).toFixed(1)} kΩ</text>
+      <text y="22" font-size="12" fill="#264653">(cold = high R, hot = low R)</text>
+    </g>
+    <g transform="translate(360,85)">
+      <rect width="80" height="50" fill="#FFF" stroke="#264653" stroke-width="3" rx="4"/>
+      <text x="40" y="22" text-anchor="middle" font-size="10" fill="#264653">Vout</text>
+      <text x="40" y="42" text-anchor="middle" font-size="14" font-weight="bold" fill="${Vout>3?'#E63946':'#264653'}">${Vout.toFixed(2)}V</text>
+    </g>
+    ${Vout>3?`<g transform="translate(460,95)"><text font-size="24">🔔</text><text y="30" text-anchor="middle" font-size="11" font-weight="bold" fill="#E63946">HOT!</text></g>`:''}
+    <text x="270" y="240" text-anchor="middle" font-size="12" font-weight="bold" fill="#264653">R × 10kΩ voltage divider → higher Vout when hot → compare threshold → buzz</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🌡️ Thermistor',evendisabled:true,subtitle:'Temperature bulb → voltage → thermostat!',
+  vars:{T:{label:'🌡️ T',value:25,color:'#E63946'},Vout:{label:'📟 Vout',value:0,color:'#457B9D'}},
+  extras:[{kind:'slider',id:'tS',label:'Temperature °C',min:-10,max:60,value:25,step:1,onInput(v,s){s.T=v;}}],
+  lines:['Temperature changes thermistor R','R in voltage divider → Vout','Hot = low R = higher Vout','Compare to threshold → buzz'],
+  phases:['temp','resist','divide','decide'],onInit(s){s.T=25;s.Vout=0;},onReset(s){s.T=25;s.Vout=0;},stage,
+  run(p,s,ui){const n=['temp','resist','divide','decide'].indexOf(p)+1;ui.activeLine(n);if(p==='divide'){const R=10000*Math.exp(3950*(1/(s.T+273)-1/298));const V=5*(10000/(10000+R));s.Vout=V;ui.setVar('Vout',V,{display:V.toFixed(2)+'V',flash:true});}if(p==='decide'&&s.Vout>3)ui.check(4,true);}
+});
+</script></body></html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Probe the probe</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const W=500,H=100;
+  const badHi = s.comp < 50;
+  const badLo = s.comp > 150;
+  const pts = [];
+  for (let i=0;i<W;i++){
+    let v = (i % 100 < 50) ? 30 : -30;
+    if (badHi && i % 100 < 50) v += 20*Math.exp(-(i%100)/10);
+    if (badLo && i % 100 < 50) v -= 15;
+    pts.push(`${i},${H/2 - v*1.5}`);
+  }
+  return `<svg viewBox="0 0 540 240">
+    <rect x="10" y="10" width="${W+20}" height="${H+20}" fill="#0A0F1E" stroke="#FFD700" stroke-width="3" rx="8"/>
+    <polyline points="${pts.join(' ')}" fill="none" stroke="${badHi||badLo?'#E63946':'#40BF4A'}" stroke-width="2" transform="translate(10,10)"/>
+    <text x="20" y="30" font-size="11" font-weight="bold" fill="${badHi||badLo?'#E63946':'#40BF4A'}">${badHi?'⚠️ OVER-compensated (spike)':badLo?'⚠️ UNDER-compensated (sag)':'✅ good square — compensation OK'}</text>
+    <text x="20" y="170" font-size="12" font-weight="bold" fill="#264653">probe compensation: ${s.comp} · aim 100 · adjust on probe body with tiny screwdriver</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🔬 Probe the Probe',subtitle:'Why every pro compensates first!',
+  vars:{comp:{label:'🔧 comp',value:100,color:'#FFD700'}},
+  extras:[{kind:'slider',id:'cS',label:'Compensation',min:0,max:200,value:100,step:10,onInput(v,s){s.comp=v;}}],
+  lines:['Probe has 10:1 divider + comp cap','Match cap → perfect square','Too much → spike at edges','Too little → sag'],
+  phases:['divider','match','compare','adjust'],onInit(s){s.comp=100;},onReset(s){s.comp=100;},stage,
+  run(p,s,ui){const n=['divider','match','compare','adjust'].indexOf(p)+1;ui.activeLine(n);}
+});
+</script></body></html>

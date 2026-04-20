@@ -1,0 +1,29 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>4-Bit Counter</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const bits = [8,4,2,1].map((v,i)=> (s.n >> (3-i)) & 1);
+  return `<svg viewBox="0 0 540 240">
+    <rect width="540" height="240" fill="#F4E8CB"/>
+    <text x="270" y="40" text-anchor="middle" font-size="20" font-weight="bold" fill="#264653">Count: ${s.n}</text>
+    <text x="270" y="65" text-anchor="middle" font-size="14" font-weight="bold" fill="#FF6B35">binary: ${bits.join('')}</text>
+    ${bits.map((b,i) => `<g transform="translate(${100+i*90},130)">
+      ${b?'<circle r="34" fill="#E63946" opacity="0.3"/>':''}
+      <circle r="26" fill="${b?'#E63946':'#666'}" stroke="#264653" stroke-width="3"/>
+      <text y="6" text-anchor="middle" font-size="18" font-weight="bold" fill="#FFF">${b}</text>
+      <text y="60" text-anchor="middle" font-size="12" font-weight="bold" fill="#264653">bit ${3-i} (${[8,4,2,1][i]})</text>
+    </g>`).join('')}
+    <text x="270" y="225" text-anchor="middle" font-size="11" fill="#264653">each bit toggles at half the rate of the one to its right</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🔢 4-Bit Counter',subtitle:'Press STEP 16 times — watch binary cycle!',
+  vars:{n:{label:'n',value:0,color:'#FF6B35'}},
+  lines:['CLOCK tick arrives','BIT 0 toggles','CARRY propagates to bit 1','WHEN 1111 → wrap to 0000'],
+  phases:['tick','toggle','carry','wrap'],
+  onInit(s){s.n=0;},onReset(s){s.n=0;},stage,
+  run(phase,s,ui){const n=['tick','toggle','carry','wrap'].indexOf(phase)+1;ui.activeLine(n);
+    if(phase==='toggle'){s.n=(s.n+1)&0xF;ui.setVar('n',s.n,{display:String(s.n),flash:true});ui.narrate(`count = ${s.n} = ${s.n.toString(2).padStart(4,'0')}₂`);}
+    else if(phase==='wrap'&&s.n===0)ui.check(4,true);
+  }
+});
+</script></body></html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Extension cord drop</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const rPerM = s.gauge === 14 ? 0.008 : s.gauge === 16 ? 0.013 : 0.021;
+  const R = rPerM * s.len;
+  const I = 110 / (R + s.load);
+  const Vload = I * s.load;
+  const heat = I*I*R;
+  return `<svg viewBox="0 0 540 240">
+    <rect width="540" height="240" fill="#F4E8CB"/>
+    <g transform="translate(30,80)"><rect width="60" height="40" fill="#FFD700" stroke="#264653" stroke-width="3"/><text x="30" y="26" text-anchor="middle" font-size="12" font-weight="bold">110V</text></g>
+    <line x1="90" y1="100" x2="${90+s.len*2}" y2="100" stroke="${heat>20?'#E63946':'#888'}" stroke-width="${heat>20?6:4}"/>
+    <line x1="90" y1="112" x2="${90+s.len*2}" y2="112" stroke="${heat>20?'#E63946':'#888'}" stroke-width="${heat>20?6:4}"/>
+    ${heat > 20 ? Array.from({length:3},(_,i)=>`<text x="${90+i*(s.len*2/3)+30}" y="${80-i*3}" font-size="14">🔥</text>`).join(''):''}
+    <text x="${90+s.len}" y="140" text-anchor="middle" font-size="11" fill="#264653">${s.len}m of ${s.gauge} AWG · R=${R.toFixed(2)}Ω</text>
+    <g transform="translate(${100+s.len*2},80)"><rect width="80" height="40" fill="#E63946" stroke="#264653" stroke-width="3"/><text x="40" y="26" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFF">heater ${s.load}Ω</text></g>
+    <g transform="translate(30,170)">
+      <text font-size="12" font-weight="bold" fill="#264653">V at heater: ${Vload.toFixed(1)}V  ·  cord dissipates: ${heat.toFixed(1)}W</text>
+      <text y="20" font-size="11" fill="${heat>20?'#E63946':'#40BF4A'}" font-weight="bold">${heat>20?'🔥 cord heating up — fire hazard!':'✅ cord ok'}</text>
+    </g>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🔌 Extension Cord Drop',subtitle:'Why gauge matters!',
+  vars:{Vload:{label:'📟 V load',value:0,color:'#457B9D'}},
+  extras:[{kind:'slider',id:'lS',label:'Length (m)',min:3,max:100,value:30,step:1,onInput(v,s){s.len=v;}},{kind:'slider',id:'gS',label:'Gauge (AWG)',min:14,max:18,value:16,step:2,onInput(v,s){s.gauge=v;}},{kind:'slider',id:'loS',label:'Load Ω',min:5,max:30,value:10,step:1,onInput(v,s){s.load=v;}}],
+  lines:['Source voltage = 110V','Cord has resistance per meter','Current = V / (R_cord + R_load)','V at load = I × R_load (less than 110!)'],
+  phases:['source','cord','current','drop'],onInit(s){s.len=30;s.gauge=16;s.load=10;s.Vload=0;},onReset(s){s.len=30;s.gauge=16;s.load=10;},stage,
+  run(p,s,ui){const n=['source','cord','current','drop'].indexOf(p)+1;ui.activeLine(n);}
+});
+</script></body></html>

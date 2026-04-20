@@ -1,0 +1,24 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Johnson noise</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const W=500,H=120;
+  const n = s.hist.length || 2;
+  const amp = Math.sqrt(Math.max(0, s.T)/300) * 50;
+  const pts = s.hist.map((v,i)=>`${(i/(n-1))*W},${H/2 - v}`).join(' ');
+  return `<svg viewBox="0 0 540 240">
+    <rect x="10" y="10" width="${W+20}" height="${H+20}" fill="#0A0F1E" stroke="#FFD700" stroke-width="3" rx="8"/>
+    <polyline points="${pts}" fill="none" stroke="#FFD700" stroke-width="1.5" transform="translate(10,10)"/>
+    <text x="20" y="30" font-size="11" fill="#FFD700" font-weight="bold">resistor noise · T=${s.T}K · amp ≈ ${amp.toFixed(1)}µV</text>
+    <text x="20" y="170" font-size="13" font-weight="bold" fill="#264653">cool to 0K → noise → ZERO. Heat = jiggle = electrical noise!</text>
+    <text x="20" y="195" font-size="11" fill="#264653">This is where hardware RNG chips get their randomness.</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🔊 Johnson-Nyquist Noise',subtitle:'Thermal = electrical noise. Cool it away!',
+  vars:{T:{label:'🌡️ T',value:300,color:'#E63946'}},
+  extras:[{kind:'slider',id:'tS',label:'Temperature (K)',min:0,max:400,value:300,step:10,onInput(v,s){s.T=v;}}],
+  lines:['Electrons in a resistor vibrate from heat','Random voltage fluctuations','Amplify → hear/see noise','Lower T → less jiggle → less noise'],
+  phases:['jiggle','fluct','amp','cool'],onInit(s){s.T=300;s.hist=[];},onReset(s){s.T=300;s.hist=[];},stage,
+  run(p,s,ui){const n=['jiggle','fluct','amp','cool'].indexOf(p)+1;ui.activeLine(n);const amp=Math.sqrt(Math.max(0,s.T)/300)*50;s.hist.push((Math.random()-0.5)*amp);if(s.hist.length>100)s.hist.shift();}
+});
+</script></body></html>

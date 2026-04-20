@@ -1,0 +1,38 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Multimeter school</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const reading = s.mode==='V' ? '5.00 V' : s.mode==='A' ? '0.050 A' : s.mode==='Ω' ? '220 Ω' : '—';
+  const error = (s.mode === 'A' && !s.inSeries) || (s.mode === 'Ω' && s.powered);
+  return `<svg viewBox="0 0 540 260">
+    <rect width="540" height="260" fill="#F4E8CB"/>
+    <g transform="translate(30,60)">
+      <rect width="200" height="160" fill="#FFF" stroke="#264653" stroke-width="4" rx="10"/>
+      <rect x="15" y="15" width="170" height="50" fill="#0A0F1E" rx="4"/>
+      <text x="100" y="50" text-anchor="middle" font-size="22" font-weight="bold" fill="${error?'#E63946':'#40BF4A'}" font-family="monospace">${error?'— err —':reading}</text>
+      <g transform="translate(100,110) rotate(${s.mode==='V'?-60:s.mode==='A'?0:s.mode==='Ω'?60:-90})">
+        <line x1="0" y1="0" x2="0" y2="-30" stroke="#E63946" stroke-width="4"/>
+        <circle r="5" fill="#E63946"/>
+      </g>
+      ${['V','A','Ω','off'].map((m,i)=>`<text x="${20+i*50}" y="155" font-size="12" font-weight="bold" fill="${s.mode===m?'#E63946':'#264653'}">${m}</text>`).join('')}
+    </g>
+    <g transform="translate(260,90)">
+      <rect width="250" height="100" fill="#FFF" stroke="#264653" stroke-width="2" rx="4"/>
+      <text x="125" y="25" text-anchor="middle" font-size="12" font-weight="bold" fill="#264653">circuit under test</text>
+      <line x1="20" y1="55" x2="120" y2="55" stroke="#264653" stroke-width="2"/>
+      <rect x="120" y="45" width="40" height="20" fill="#D4A574" stroke="#264653"/>
+      <line x1="160" y1="55" x2="230" y2="55" stroke="#264653" stroke-width="2"/>
+      ${s.mode==='V'?'<line x1="80" y1="70" x2="80" y2="90" stroke="#E63946" stroke-width="2"/><line x1="200" y1="70" x2="200" y2="90" stroke="#FFD700" stroke-width="2"/><text x="140" y="88" text-anchor="middle" font-size="9" fill="#264653">probes across</text>':''}
+      ${s.mode==='A'?'<line x1="100" y1="55" x2="100" y2="90" stroke="#E63946" stroke-width="2"/><text x="100" y="82" text-anchor="middle" font-size="8" fill="#E63946">in series</text>':''}
+    </g>
+    <text x="270" y="240" text-anchor="middle" font-size="12" font-weight="bold" fill="${error?'#E63946':'#264653'}">${error?'⚠️ wrong setup — would blow fuse!':s.mode==='V'?'V: probes ACROSS component':s.mode==='A'?'A: probes IN SERIES (break the line)':s.mode==='Ω'?'Ω: power OFF, probes across':'turn the dial first!'}</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'📏 Multimeter School',subtitle:'The #1 tool — learn its three modes!',
+  vars:{mode:{label:'🎛️ mode',value:'off',color:'#FF6B35'}},
+  extras:[{kind:'slider',id:'mS',label:'Mode (0=off 1=V 2=A 3=Ω)',min:0,max:3,value:0,step:1,onInput(v,s){s.mode=['off','V','A','Ω'][v];}},{kind:'toggle',id:'pT',label:'Circuit powered',value:true,onToggle(v,s){s.powered=v;}},{kind:'toggle',id:'sT',label:'A-mode in series',value:true,onToggle(v,s){s.inSeries=v;}}],
+  lines:['Pick mode on the dial','V: probes ACROSS component','A: probes IN SERIES (break circuit)','Ω: power OFF, probes across'],
+  phases:['dial','connect','read','sanity'],onInit(s){s.mode='off';s.powered=true;s.inSeries=true;},onReset(s){s.mode='off';},stage,
+  run(p,s,ui){const n=['dial','connect','read','sanity'].indexOf(p)+1;ui.activeLine(n);ui.setVar('mode',s.mode,{display:s.mode});}
+});
+</script></body></html>

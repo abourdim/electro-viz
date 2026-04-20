@@ -1,0 +1,31 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Electrolysis</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const rate = s.V / 3;
+  const t = s.t;
+  const h2 = Array.from({length:Math.floor(rate*4)},(_,i)=>{const y = 120 - ((t + i*10) % 80); return `<circle cx="180" cy="${y}" r="5" fill="#87CEEB" opacity="${y/100}"/>`;}).join('');
+  const o2 = Array.from({length:Math.floor(rate*2)},(_,i)=>{const y = 120 - ((t + i*20) % 80); return `<circle cx="360" cy="${y}" r="5" fill="#87CEEB" opacity="${y/100}"/>`;}).join('');
+  return `<svg viewBox="0 0 540 240">
+    <rect width="540" height="240" fill="#F4E8CB"/>
+    <rect x="100" y="120" width="340" height="100" fill="#87CEEB" opacity="0.5" stroke="#264653" stroke-width="3"/>
+    <text x="270" y="180" text-anchor="middle" font-size="11" fill="#264653" font-weight="bold">salt water</text>
+    <rect x="170" y="140" width="20" height="70" fill="#999" stroke="#264653" stroke-width="2"/>
+    <text x="180" y="235" text-anchor="middle" font-size="11" font-weight="bold" fill="#264653">− cathode</text>
+    <text x="180" y="135" text-anchor="middle" font-size="10" font-weight="bold" fill="#264653">H₂ (2×)</text>
+    <rect x="350" y="140" width="20" height="70" fill="#CC8833" stroke="#264653" stroke-width="2"/>
+    <text x="360" y="235" text-anchor="middle" font-size="11" font-weight="bold" fill="#264653">+ anode</text>
+    <text x="360" y="135" text-anchor="middle" font-size="10" font-weight="bold" fill="#264653">O₂ (1×)</text>
+    ${h2}${o2}
+    <g transform="translate(230,30)"><rect width="80" height="40" fill="#FFD700" stroke="#264653" stroke-width="3"/><text x="40" y="26" text-anchor="middle" font-size="14" font-weight="bold">${s.V}V</text></g>
+    <text x="270" y="110" text-anchor="middle" font-size="12" font-weight="bold" fill="#264653">2 H₂O → 2 H₂ + O₂ · ratio 2:1 visible!</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🧪 Electrolysis',subtitle:'Split water with electricity!',
+  vars:{V:{label:'⚡ V',value:9,color:'#FFD700'},rate:{label:'💨 rate',value:0,color:'#87CEEB'}},
+  extras:[{kind:'slider',id:'vS',label:'Voltage',min:2,max:15,value:9,step:1,onInput(v,s){s.V=v;}}],
+  lines:['Apply DC across electrodes','H⁺ ions attracted to − electrode','O²⁻ attracted to +','2 H₂ bubbles per 1 O₂ bubble'],
+  phases:['dc','migrate','react','count'],onInit(s){s.V=9;s.t=0;},onReset(s){s.V=9;s.t=0;},stage,
+  run(p,s,ui){const n=['dc','migrate','react','count'].indexOf(p)+1;ui.activeLine(n);s.t+=3;if(p==='count'){s.rate=s.V/3;ui.setVar('rate',s.rate,{display:s.rate.toFixed(1),flash:true});}}
+});
+</script></body></html>

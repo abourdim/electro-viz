@@ -1,0 +1,32 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Solder joint rater</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+const JOINTS=[
+  {id:'cold',name:'COLD (grainy)',shape:'M 20 50 Q 30 40 40 50 L 40 70 L 20 70 Z',fill:'#999',rating:'bad',note:'dull, porous — weak'},
+  {id:'good',name:'GOOD (shiny)',shape:'M 20 60 Q 30 30 40 60 L 40 70 L 20 70 Z',fill:'#E5E4E2',rating:'good',note:'shiny cone — perfect'},
+  {id:'too_much',name:'TOO MUCH',shape:'M 10 50 Q 30 20 50 50 L 50 70 L 10 70 Z',fill:'#E5E4E2',rating:'meh',note:'blobby — will work but wasteful'},
+  {id:'bridge',name:'BRIDGED',shape:'M 10 60 L 80 60 L 80 70 L 10 70 Z',fill:'#E5E4E2',rating:'bad',note:'shorts neighboring pads!'}
+];
+function stage(s){
+  const J = JOINTS[s.idx];
+  return `<svg viewBox="0 0 540 240">
+    <rect width="540" height="240" fill="#F4E8CB"/>
+    <g transform="translate(220,70)">
+      <rect x="-10" y="60" width="${J.id==='bridge'?100:70}" height="10" fill="#A1662F"/>
+      <rect x="20" y="55" width="10" height="8" fill="#FFD700"/>
+      ${J.id==='bridge'?'<rect x="70" y="55" width="10" height="8" fill="#FFD700"/>':''}
+      <path d="${J.shape}" fill="${J.fill}" stroke="#264653" stroke-width="2"/>
+    </g>
+    <text x="270" y="180" text-anchor="middle" font-size="16" font-weight="bold" fill="${J.rating==='good'?'#40BF4A':J.rating==='bad'?'#E63946':'#FFD700'}">${J.name}</text>
+    <text x="270" y="205" text-anchor="middle" font-size="12" font-weight="bold" fill="#264653">${J.note}</text>
+    <text x="270" y="225" text-anchor="middle" font-size="11" fill="#264653">${J.rating==='good'?'✅ ship it':J.rating==='bad'?'⚠️ rework':'😐 functional but ugly'}</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🔨 Solder Joint Rater',subtitle:'Learn the 4 joint types!',
+  vars:{type:{label:'🔧 type',value:JOINTS[0].id,color:'#FF6B35'},rating:{label:'⭐ rating',value:'?',color:'#40BF4A'}},
+  extras:[{kind:'slider',id:'iS',label:'Joint #',min:0,max:3,value:0,step:1,onInput(v,s){s.idx=v;}}],
+  lines:['Flux cleans + helps flow','Heat pad AND component lead','Apply solder to JOINT (not iron)','Remove solder, then iron — cone forms'],
+  phases:['flux','heat','apply','rate'],onInit(s){s.idx=0;},onReset(s){s.idx=0;},stage,
+  run(p,s,ui){const n=['flux','heat','apply','rate'].indexOf(p)+1;ui.activeLine(n);if(p==='rate'){const J=JOINTS[s.idx];ui.setVar('type',J.id,{display:J.id,flash:true});ui.setVar('rating',J.rating,{display:J.rating});}}
+});
+</script></body></html>

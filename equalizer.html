@@ -1,0 +1,35 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Equalizer</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const W=500, H=120;
+  const t = (i,gains) => {
+    // sum 5 sines at logspaced freqs
+    const freqs=[1,3,7,15,30];
+    let sum=0;
+    for (let k=0;k<5;k++) sum += gains[k]*Math.sin(i*freqs[k]*0.03);
+    return sum;
+  };
+  const pts = Array.from({length:60},(_,i)=>`${(i/59)*W},${H/2 - t(i,s.bands)*8}`).join(' ');
+  const bars = s.bands.map((g,i) => `<rect x="${20+i*90}" y="${140 - g*4}" width="60" height="${g*4+5}" fill="#40BF4A" stroke="#264653" stroke-width="2"/><text x="${50+i*90}" y="170" text-anchor="middle" font-size="10" font-weight="bold" fill="#264653">${['60','250','1k','4k','10k'][i]}Hz</text>`).join('');
+  return `<svg viewBox="0 0 540 240">
+    <rect x="10" y="10" width="${W+20}" height="${H+20}" fill="#0A0F1E" stroke="#FFD700" stroke-width="3" rx="8"/>
+    <polyline points="${pts}" fill="none" stroke="#FFD700" stroke-width="2" transform="translate(10,10)"/>
+    <text x="20" y="30" font-size="11" fill="#FFD700" font-weight="bold">time-domain output</text>
+    ${bars}
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🎚️ Equalizer',subtitle:'5 bands → time + frequency intuition!',
+  vars:{shape:{label:'🎶 shape',value:'flat',color:'#40BF4A'}},
+  extras:[
+    {kind:'slider',id:'b0',label:'60Hz',min:0,max:10,value:5,step:1,onInput(v,s){s.bands[0]=v;}},
+    {kind:'slider',id:'b1',label:'250Hz',min:0,max:10,value:5,step:1,onInput(v,s){s.bands[1]=v;}},
+    {kind:'slider',id:'b2',label:'1kHz',min:0,max:10,value:5,step:1,onInput(v,s){s.bands[2]=v;}},
+    {kind:'slider',id:'b3',label:'4kHz',min:0,max:10,value:5,step:1,onInput(v,s){s.bands[3]=v;}},
+    {kind:'slider',id:'b4',label:'10kHz',min:0,max:10,value:5,step:1,onInput(v,s){s.bands[4]=v;}}
+  ],
+  lines:['Audio wave = sum of sines','Each band scales one freq range','Raise 60Hz → bass','Raise 4kHz → presence/vocals'],
+  phases:['split','scale','mix','out'],onInit(s){s.bands=[5,5,5,5,5];},onReset(s){s.bands=[5,5,5,5,5];},stage,
+  run(p,s,ui){const n=['split','scale','mix','out'].indexOf(p)+1;ui.activeLine(n);}
+});
+</script></body></html>

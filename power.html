@@ -1,0 +1,27 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Power P=V×I</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const P = s.V * s.I;
+  const glow = Math.min(45, P*1.5);
+  return `<svg viewBox="0 0 540 240">
+    <rect width="540" height="240" fill="#F4E8CB"/>
+    <g transform="translate(270,130)">
+      <circle r="${glow+28}" fill="#FFD700" opacity="0.3"/>
+      <circle r="28" fill="${P>2?'#FFD700':'#CCC'}" stroke="#B8860B" stroke-width="3"/>
+      <text y="5" text-anchor="middle" font-size="14">💡</text>
+    </g>
+    <rect x="100" y="195" width="340" height="24" fill="#EEE" stroke="#264653" stroke-width="2" rx="4"/>
+    <rect x="100" y="195" width="${Math.min(340, P*3)}" height="24" fill="#FF6B35" rx="4"/>
+    <text x="270" y="213" text-anchor="middle" font-size="13" font-weight="bold" fill="#FFF">P = V × I = ${s.V} × ${s.I} = ${P.toFixed(1)}W</text>
+    <text x="270" y="30" text-anchor="middle" font-size="12" fill="#264653">bulb brightness ∝ power · a 60W bulb dissipates 60J every second</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'⚡ Power = V × I',subtitle:'Watts = how much energy per second!',
+  vars:{V:{label:'🔋 V',value:12,color:'#FFD700'},I:{label:'💧 I',value:0.5,color:'#E63946'},P:{label:'⚡ P',value:0,color:'#FF6B35'}},
+  extras:[{kind:'slider',id:'v',label:'V',min:1,max:24,value:12,step:1,onInput(v,s){s.V=v;}},{kind:'slider',id:'i',label:'I',min:0,max:5,value:0.5,step:0.1,onInput(v,s){s.I=v;}}],
+  lines:['READ V and I','P = V × I','Energy/second = watts','60W = dissipates 60J/s'],
+  phases:['read','mult','energy','show'],onInit(s){s.V=12;s.I=0.5;s.P=6;},onReset(s){s.V=12;s.I=0.5;},stage,
+  run(p,s,ui){const n=['read','mult','energy','show'].indexOf(p)+1;ui.activeLine(n);if(p==='mult'){s.P=s.V*s.I;ui.setVar('P',s.P,{display:s.P.toFixed(1)+'W',flash:true});}}
+});
+</script></body></html>

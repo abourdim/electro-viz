@@ -1,0 +1,36 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Op-amp golden rules</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const Vout = -s.Vin * s.gain;
+  return `<svg viewBox="0 0 540 240">
+    <rect width="540" height="240" fill="#F4E8CB"/>
+    <g transform="translate(200,90)">
+      <polygon points="0,0 0,60 60,30" fill="#FFF" stroke="#264653" stroke-width="3"/>
+      <text x="6" y="20" font-size="11" font-weight="bold" fill="#E63946">−</text>
+      <text x="6" y="46" font-size="11" font-weight="bold" fill="#40BF4A">+</text>
+      <text x="35" y="33" font-size="11" font-weight="bold" fill="#264653">∞</text>
+    </g>
+    <text x="100" y="100" font-size="11" fill="#E63946" font-weight="bold">Vin ${s.Vin.toFixed(2)}V</text>
+    <line x1="140" y1="100" x2="200" y2="100" stroke="#264653" stroke-width="2"/>
+    <line x1="120" y1="130" x2="200" y2="130" stroke="#40BF4A" stroke-width="2"/>
+    <text x="90" y="135" font-size="11" fill="#40BF4A" font-weight="bold">0V</text>
+    <line x1="260" y1="120" x2="320" y2="120" stroke="#264653" stroke-width="2"/>
+    <text x="340" y="125" font-size="12" font-weight="bold" fill="#264653">Vout = ${Vout.toFixed(2)}V</text>
+    <path d="M 240 100 Q 240 60 140 100" fill="none" stroke="#264653" stroke-width="2"/>
+    <text x="180" y="50" font-size="10" fill="#264653" font-weight="bold">feedback</text>
+    <g transform="translate(20,180)">
+      <text font-size="12" font-weight="bold" fill="#264653">Rule 1: no current into ± inputs</text>
+      <text y="18" font-size="12" font-weight="bold" fill="#264653">Rule 2: op-amp tries to make V− = V+ (= 0V here)</text>
+    </g>
+    <text x="270" y="45" text-anchor="middle" font-size="13" font-weight="bold" fill="#264653">inverting amp · gain = −Rf/Rin = ×${-s.gain}</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'⚖️ Op-Amp Golden Rules',subtitle:'2 rules solve every op-amp circuit!',
+  vars:{Vin:{label:'🔌 Vin',value:0.5,color:'#E63946'},Vout:{label:'🔌 Vout',value:0,color:'#40BF4A'}},
+  extras:[{kind:'slider',id:'vS',label:'Vin',min:-2,max:2,value:0.5,step:0.1,onInput(v,s){s.Vin=v;}},{kind:'slider',id:'gS',label:'Gain',min:1,max:20,value:10,step:1,onInput(v,s){s.gain=v;}}],
+  lines:['Rule 1: no current in/out of ± inputs','Rule 2: op-amp makes V− = V+','V+ is grounded → V− = 0V','Current thru Rin = current thru Rf → Vout = −Rf/Rin × Vin'],
+  phases:['r1','r2','virt','solve'],onInit(s){s.Vin=0.5;s.gain=10;s.Vout=0;},onReset(s){s.Vin=0.5;s.gain=10;},stage,
+  run(p,s,ui){const n=['r1','r2','virt','solve'].indexOf(p)+1;ui.activeLine(n);if(p==='solve'){s.Vout=-s.Vin*s.gain;ui.setVar('Vout',s.Vout,{display:s.Vout.toFixed(2)+'V',flash:true});}}
+});
+</script></body></html>

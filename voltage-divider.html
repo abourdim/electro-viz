@@ -1,0 +1,33 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Voltage Divider</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const Vout = s.V * s.R2 / (s.R1 + s.R2);
+  return `<svg viewBox="0 0 540 260">
+    <rect width="540" height="260" fill="#F4E8CB"/>
+    <g transform="translate(80,60)"><rect width="40" height="140" fill="#FFD700" stroke="#264653" stroke-width="2"/><text x="20" y="80" text-anchor="middle" font-size="12" font-weight="bold">${s.V}V</text></g>
+    <line x1="120" y1="70" x2="220" y2="70" stroke="#264653" stroke-width="2"/>
+    <rect x="220" y="55" width="80" height="30" fill="#BA8C63" stroke="#264653" stroke-width="2"/>
+    <text x="260" y="75" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFF">R1=${s.R1}</text>
+    <line x1="260" y1="85" x2="260" y2="135" stroke="#264653" stroke-width="2"/>
+    <circle cx="260" cy="135" r="8" fill="#FF6B35"/>
+    <text x="305" y="140" font-size="13" font-weight="bold" fill="#FF6B35">Vout = ${Vout.toFixed(2)}V</text>
+    <rect x="220" y="155" width="80" height="30" fill="#BA8C63" stroke="#264653" stroke-width="2"/>
+    <text x="260" y="175" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFF">R2=${s.R2}</text>
+    <line x1="260" y1="185" x2="260" y2="220" stroke="#264653" stroke-width="2"/>
+    <line x1="120" y1="200" x2="120" y2="220" stroke="#264653" stroke-width="2"/>
+    <line x1="120" y1="220" x2="260" y2="220" stroke="#264653" stroke-width="2"/>
+    <text x="270" y="250" text-anchor="middle" font-size="13" font-weight="bold" fill="#264653">Vout = V × R2 / (R1 + R2) = ${s.V} × ${s.R2}/(${s.R1}+${s.R2}) = ${Vout.toFixed(2)}V</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🎚️ Voltage Divider',subtitle:'Two resistors = any voltage you want!',
+  vars:{Vout:{label:'Vout',value:0,color:'#FF6B35'}},
+  extras:[{kind:'slider',id:'vS',label:'V',min:1,max:24,value:9,step:1,onInput(v,s){s.V=v;}},{kind:'slider',id:'r1',label:'R1 kΩ',min:1,max:100,value:10,step:1,onInput(v,s){s.R1=v;}},{kind:'slider',id:'r2',label:'R2 kΩ',min:1,max:100,value:10,step:1,onInput(v,s){s.R2=v;}}],
+  lines:['Total I = V / (R1 + R2)','V drops across R1','V drops across R2 → output','Vout = V × R2 / (R1+R2)'],
+  phases:['total','drop1','drop2','compute'],
+  onInit(s){s.V=9;s.R1=10;s.R2=10;},onReset(s){s.V=9;s.R1=10;s.R2=10;},stage,
+  run(phase,s,ui){const n=['total','drop1','drop2','compute'].indexOf(phase)+1;ui.activeLine(n);
+    if(phase==='compute'){const vo=s.V*s.R2/(s.R1+s.R2);ui.setVar('Vout',vo,{display:vo.toFixed(2)+'V',flash:true});}
+  }
+});
+</script></body></html>

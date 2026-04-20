@@ -1,0 +1,33 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Faraday cage</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const leak = s.mesh > s.wavelength*0.8;
+  const inside = s.inside;
+  const strength = inside ? (leak ? 0.4 : 0.05) : 1;
+  return `<svg viewBox="0 0 540 260">
+    <rect width="540" height="260" fill="#0A0F1E"/>
+    <g transform="translate(70,120)"><text font-size="22">📡</text><text y="28" font-size="10" fill="#FFD700" font-weight="bold">TX</text></g>
+    ${Array.from({length:6},(_,i)=>`<circle cx="110" cy="130" r="${40+i*30}" fill="none" stroke="#FFD700" stroke-width="${2-i*0.3}" opacity="${0.7-i*0.1}"/>`).join('')}
+    <g transform="translate(300,60)">
+      <rect width="180" height="140" fill="none" stroke="#40BF4A" stroke-width="3" stroke-dasharray="${s.mesh*2} ${s.mesh*2}"/>
+      <text x="90" y="-4" text-anchor="middle" font-size="11" fill="#40BF4A" font-weight="bold">Faraday cage · mesh=${s.mesh}</text>
+      <g transform="translate(90,${inside?70:-40})">
+        <circle r="18" fill="${inside?'#E63946':'#457B9D'}" stroke="#FFF" stroke-width="2"/>
+        <text y="4" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFF">RX</text>
+      </g>
+    </g>
+    <rect x="350" y="210" width="160" height="20" fill="#EEE" rx="4"/>
+    <rect x="350" y="210" width="${160*strength}" height="20" fill="${strength>0.3?'#E63946':'#40BF4A'}" rx="4"/>
+    <text x="430" y="225" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFF">signal: ${(strength*100).toFixed(0)}%</text>
+    <text x="270" y="240" text-anchor="middle" font-size="11" fill="#FFF">mesh size smaller than wavelength → waves blocked (&nbsp;microwave door trick)</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'📡 Faraday Cage',subtitle:'Why your microwave door has mesh!',
+  vars:{signal:{label:'📶 signal',value:100,color:'#FFD700'}},
+  extras:[{kind:'slider',id:'mS',label:'Mesh size',min:1,max:20,value:5,step:1,onInput(v,s){s.mesh=v;}},{kind:'slider',id:'wS',label:'Wavelength',min:1,max:20,value:10,step:1,onInput(v,s){s.wavelength=v;}},{kind:'toggle',id:'iT',label:'RX inside cage',value:false,onToggle(v,s){s.inside=v;}}],
+  lines:['TX emits waves in all directions','Cage mesh reflects waves','Mesh > wavelength → waves leak','Mesh < wavelength → shielded'],
+  phases:['emit','reflect','check','show'],onInit(s){s.mesh=5;s.wavelength=10;s.inside=false;},onReset(s){s.mesh=5;s.wavelength=10;s.inside=false;},stage,
+  run(p,s,ui){const n=['emit','reflect','check','show'].indexOf(p)+1;ui.activeLine(n);}
+});
+</script></body></html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Ohm Dial</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function dial(x,y,label,val,max,color){
+  const ang = -90 + (val/max) * 270;
+  return `<g transform="translate(${x},${y})">
+    <circle r="50" fill="#FFF" stroke="${color}" stroke-width="5"/>
+    <line x1="0" y1="0" x2="${Math.cos(ang*Math.PI/180)*40}" y2="${Math.sin(ang*Math.PI/180)*40}" stroke="#264653" stroke-width="3"/>
+    <circle r="6" fill="#264653"/>
+    <text y="75" text-anchor="middle" font-size="14" font-weight="bold" fill="${color}">${label}</text>
+    <text y="92" text-anchor="middle" font-size="12" fill="#264653">${val.toFixed(1)}</text>
+  </g>`;
+}
+function stage(s){
+  const P = s.V * s.I;
+  return `<svg viewBox="0 0 540 260">
+    <rect width="540" height="260" fill="#F4E8CB"/>
+    ${dial(110,100,'V',s.V,24,'#FFD700')}
+    ${dial(270,100,'I',s.I,10,'#E63946')}
+    ${dial(430,100,'R',s.R,30,'#666')}
+    <rect x="80" y="210" width="380" height="30" fill="#FFF" stroke="#264653" stroke-width="2" rx="6"/>
+    <rect x="80" y="210" width="${Math.min(380,(P/50)*380)}" height="30" fill="#FF6B35" rx="6"/>
+    <text x="270" y="230" text-anchor="middle" font-size="14" font-weight="bold" fill="#264653">Power = V × I = ${P.toFixed(1)}W</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🎛️ Ohm\'s Dial',subtitle:'V = I × R — turn any two, the third follows!',
+  vars:{V:{label:'V',value:9,color:'#FFD700'},I:{label:'I',value:3,color:'#E63946'},R:{label:'R',value:3,color:'#666'}},
+  extras:[{kind:'slider',id:'vS',label:'V',min:1,max:24,value:9,step:1,onInput(v,s){s.V=v;s.locked='R';}},{kind:'slider',id:'rS',label:'R',min:1,max:30,value:3,step:1,onInput(v,s){s.R=v;s.locked='I';}}],
+  lines:['READ two variables','SOLVE: V = I × R','PLOT the third dial','POWER bar fills: P = V × I'],
+  phases:['read','solve','plot','power'],
+  onInit(s){s.V=9;s.I=3;s.R=3;s.locked='I';},onReset(s){s.V=9;s.I=3;s.R=3;s.locked='I';},stage,
+  run(phase,s,ui){const n=['read','solve','plot','power'].indexOf(phase)+1;ui.activeLine(n);
+    if(phase==='solve'){if(s.locked==='I'){s.I=s.V/s.R;ui.setVar('I',s.I,{display:s.I.toFixed(2),flash:true});}else{s.R=s.V/s.I;ui.setVar('R',s.R,{display:s.R.toFixed(2),flash:true});}}
+  }
+});
+</script></body></html>

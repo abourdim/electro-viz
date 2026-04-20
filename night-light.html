@@ -1,0 +1,35 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Night light</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const R_ldr = 200000 / Math.max(1, s.light*s.light/100 + 1);
+  const Vout = 5 * (10000 / (10000 + R_ldr));
+  const ledOn = Vout < 2.3;
+  return `<svg viewBox="0 0 540 240">
+    <rect width="540" height="240" fill="${s.light>60?'#FFE9A8':s.light>20?'#F4E8CB':'#1D3557'}"/>
+    <g transform="translate(60,70)"><text font-size="36">${s.light>60?'☀️':s.light>20?'⛅':'🌙'}</text></g>
+    <g transform="translate(180,90)">
+      <circle r="28" fill="#FFF" stroke="#264653" stroke-width="3"/>
+      <text y="4" text-anchor="middle" font-size="10" font-weight="bold" fill="#264653">LDR</text>
+      <text y="55" text-anchor="middle" font-size="11" font-weight="bold" fill="${s.light>20?'#264653':'#E63946'}">${(R_ldr/1000).toFixed(1)}kΩ</text>
+    </g>
+    <g transform="translate(280,90)">
+      <rect width="80" height="40" fill="#FFF" stroke="#264653" stroke-width="2" rx="4"/>
+      <text x="40" y="18" text-anchor="middle" font-size="10" fill="#264653">Vout</text>
+      <text x="40" y="34" text-anchor="middle" font-size="13" font-weight="bold" fill="#264653">${Vout.toFixed(2)}V</text>
+    </g>
+    <g transform="translate(410,90)">
+      <circle r="${ledOn?25:16}" fill="${ledOn?'#FFD700':'#333'}" stroke="#264653" stroke-width="3"/>
+      <text y="52" text-anchor="middle" font-size="11" font-weight="bold" fill="${ledOn?'#40BF4A':'#264653'}">${ledOn?'💡 ON':'OFF'}</text>
+    </g>
+    <text x="270" y="215" text-anchor="middle" font-size="12" font-weight="bold" fill="${s.light<30?'#FFF':'#264653'}">light=${s.light}% · dark → LDR R↑ → Vout↓ → comparator fires → LED ON</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🔆 Night Light',subtitle:'The most-built project, decoded!',
+  vars:{light:{label:'☀️ light',value:70,color:'#FFD700'},Vout:{label:'📟 Vout',value:0,color:'#457B9D'},ledOn:{label:'💡 LED',value:'off',color:'#40BF4A'}},
+  extras:[{kind:'slider',id:'lS',label:'Ambient light %',min:0,max:100,value:70,step:5,onInput(v,s){s.light=v;}}],
+  lines:['Photoresistor R depends on light','Voltage divider with 10kΩ','Compare Vout to threshold','Below threshold → LED ON'],
+  phases:['sense','divide','compare','toggle'],onInit(s){s.light=70;s.Vout=0;s.ledOn=false;},onReset(s){s.light=70;s.ledOn=false;},stage,
+  run(p,s,ui){const n=['sense','divide','compare','toggle'].indexOf(p)+1;ui.activeLine(n);if(p==='divide'){const R=200000/Math.max(1,s.light*s.light/100+1);const V=5*(10000/(10000+R));s.Vout=V;ui.setVar('Vout',V,{display:V.toFixed(2)+'V',flash:true});}else if(p==='toggle'){s.ledOn=s.Vout<2.3;ui.setVar('ledOn',s.ledOn?'on':'off',{display:s.ledOn?'ON':'off',flash:true});}}
+});
+</script></body></html>

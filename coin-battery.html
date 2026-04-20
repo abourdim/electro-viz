@@ -1,0 +1,32 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Coin battery cutaway</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const V = Math.max(0, 3.0 - s.age * 0.004);
+  return `<svg viewBox="0 0 540 240">
+    <rect width="540" height="240" fill="#F4E8CB"/>
+    <g transform="translate(150,40)">
+      <ellipse cx="120" cy="70" rx="120" ry="25" fill="#888" stroke="#264653" stroke-width="2"/>
+      <rect x="0" y="70" width="240" height="70" fill="#AAA" stroke="#264653" stroke-width="2"/>
+      <rect x="10" y="80" width="220" height="10" fill="#B8860B"/>
+      <text x="120" y="90" text-anchor="middle" font-size="10" font-weight="bold" fill="#FFF">+ cathode (MnO₂)</text>
+      <rect x="10" y="95" width="220" height="18" fill="#F4E8CB"/>
+      <text x="120" y="107" text-anchor="middle" font-size="10" font-weight="bold" fill="#264653">electrolyte (LiClO₄ in organic)</text>
+      <rect x="10" y="118" width="220" height="15" fill="#C0C0C0"/>
+      <text x="120" y="129" text-anchor="middle" font-size="10" font-weight="bold" fill="#264653">− anode (Li metal)</text>
+      <ellipse cx="120" cy="140" rx="120" ry="20" fill="#999" stroke="#264653" stroke-width="2"/>
+    </g>
+    <g transform="translate(30,190)">
+      <text font-size="12" font-weight="bold" fill="#264653">CR2032 cutaway · age: ${s.age} months</text>
+      <text y="18" font-size="14" font-weight="bold" fill="${V<2.5?'#E63946':'#40BF4A'}">voltage: ${V.toFixed(2)}V${V<2.5?' ⚠️ replace':''}</text>
+    </g>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🪙 Coin Battery Cutaway',subtitle:'Inside a CR2032 — and how it ages!',
+  vars:{V:{label:'⚡ V',value:3.0,color:'#40BF4A'}},
+  extras:[{kind:'slider',id:'aS',label:'Age (months)',min:0,max:120,value:0,step:6,onInput(v,s){s.age=v;}}],
+  lines:['Anode (Li) wants to lose electrons','Electrolyte lets Li+ ions cross','Cathode (MnO₂) accepts electrons','Self-discharge: capacity drops over years'],
+  phases:['anode','cross','cathode','age'],onInit(s){s.age=0;s.V=3.0;},onReset(s){s.age=0;s.V=3.0;},stage,
+  run(p,s,ui){const n=['anode','cross','cathode','age'].indexOf(p)+1;ui.activeLine(n);if(p==='age'){s.V=Math.max(0,3.0-s.age*0.004);ui.setVar('V',s.V,{display:s.V.toFixed(2)+'V',flash:true});}}
+});
+</script></body></html>

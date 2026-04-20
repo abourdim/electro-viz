@@ -1,0 +1,47 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Schematic ↔ Breadboard</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const active = s.activePart;
+  const hl = id => active === id ? '#FF6B35' : '#264653';
+  const w = id => active === id ? 4 : 2;
+  return `<svg viewBox="0 0 540 260">
+    <rect width="540" height="260" fill="#F4E8CB"/>
+    <text x="135" y="20" text-anchor="middle" font-size="13" font-weight="bold" fill="#264653">SCHEMATIC</text>
+    <g transform="translate(20,40)">
+      <line x1="20" y1="30" x2="20" y2="120" stroke="${hl('bat')}" stroke-width="${w('bat')}"/>
+      <line x1="10" y1="30" x2="30" y2="30" stroke="${hl('bat')}" stroke-width="${w('bat')}"/>
+      <line x1="15" y1="36" x2="25" y2="36" stroke="${hl('bat')}" stroke-width="${w('bat')}"/>
+      <line x1="10" y1="42" x2="30" y2="42" stroke="${hl('bat')}" stroke-width="${w('bat')}"/>
+      <line x1="15" y1="48" x2="25" y2="48" stroke="${hl('bat')}" stroke-width="${w('bat')}"/>
+      <text x="-4" y="46" font-size="10" fill="${hl('bat')}" font-weight="bold">9V</text>
+      <line x1="20" y1="30" x2="120" y2="30" stroke="#264653" stroke-width="2"/>
+      <path d="M 120 30 L 135 20 L 145 30 L 135 40 Z" fill="none" stroke="${hl('r')}" stroke-width="${w('r')}"/>
+      <text x="135" y="55" text-anchor="middle" font-size="10" fill="${hl('r')}" font-weight="bold">330Ω</text>
+      <line x1="145" y1="30" x2="230" y2="30" stroke="#264653" stroke-width="2"/>
+      <circle cx="230" cy="40" r="8" stroke="${hl('led')}" stroke-width="${w('led')}" fill="none"/>
+      <polygon points="224,36 236,40 224,44" fill="${hl('led')}"/>
+      <text x="230" y="62" text-anchor="middle" font-size="10" fill="${hl('led')}" font-weight="bold">LED</text>
+      <line x1="230" y1="48" x2="230" y2="120" stroke="#264653" stroke-width="2"/>
+      <line x1="20" y1="120" x2="230" y2="120" stroke="#264653" stroke-width="2"/>
+    </g>
+    <text x="405" y="20" text-anchor="middle" font-size="13" font-weight="bold" fill="#264653">BREADBOARD</text>
+    <g transform="translate(280,40)">
+      <rect width="240" height="180" fill="#F5F5F5" stroke="#264653" stroke-width="2" rx="6"/>
+      ${Array.from({length:10},(_,r)=>Array.from({length:10},(_,c)=>`<circle cx="${10+c*22}" cy="${10+r*18}" r="3" fill="#2B2B2B"/>`).join('')).join('')}
+      <rect x="5" y="${s.activePart==='bat'?80:90}" width="14" height="18" fill="${hl('bat')}" stroke="#000"/>
+      ${active==='bat'?'<text x="50" y="100" font-size="10" font-weight="bold" fill="#FF6B35">+ rail → col 2</text>':''}
+      <g transform="translate(54,80)"><rect width="40" height="10" fill="${hl('r')}"/></g>
+      ${active==='led'?'<circle cx="120" cy="85" r="8" fill="#FF6B35"/>':'<circle cx="120" cy="85" r="6" fill="#E63946"/>'}
+    </g>
+    <text x="270" y="245" text-anchor="middle" font-size="12" font-weight="bold" fill="#264653">Same circuit, two languages. Highlight a part in one → lights up in the other.</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'📐 Schematic ↔ Breadboard',subtitle:'Two views of the same circuit!',
+  vars:{activePart:{label:'🔍 showing',value:'-',color:'#FF6B35'}},
+  extras:[{kind:'slider',id:'p',label:'Part (0-3)',min:0,max:3,value:0,step:1,onInput(v,s){s.activePart=['none','bat','r','led'][v];}}],
+  lines:['Battery on schematic = battery holder on breadboard','Resistor zigzag = color-band component','LED triangle = 2-lead LED','Wires = jumper wires'],
+  phases:['bat','r','led','cross'],onInit(s){s.activePart=null;},onReset(s){s.activePart=null;},stage,
+  run(p,s,ui){const n=['bat','r','led','cross'].indexOf(p)+1;ui.activeLine(n);if(p!=='cross'){s.activePart=p;ui.setVar('activePart',p,{display:p});}}
+});
+</script></body></html>

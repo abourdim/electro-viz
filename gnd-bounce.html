@@ -1,0 +1,24 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>GND bounce</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const W=500,H=100;
+  const n = Math.max(2, s.hist.length);
+  const pts = s.hist.map((v,i)=>`${(i/(n-1))*W},${H/2 - v*8}`).join(' ');
+  return `<svg viewBox="0 0 540 240">
+    <rect x="10" y="10" width="${W+20}" height="${H+20}" fill="#0A0F1E" stroke="#FFD700" stroke-width="3" rx="8"/>
+    <line x1="10" y1="60" x2="530" y2="60" stroke="#40BF4A" stroke-dasharray="3 3"/>
+    <text x="20" y="56" font-size="10" fill="#40BF4A" font-weight="bold">ideal GND (0V)</text>
+    <polyline points="${pts}" fill="none" stroke="${s.decouple?'#40BF4A':'#E63946'}" stroke-width="2" transform="translate(10,10)"/>
+    <text x="20" y="170" font-size="12" font-weight="bold" fill="#264653">GND trace voltage · fast digital switching injects current into L_gnd</text>
+    <text x="20" y="195" font-size="11" font-weight="bold" fill="${s.decouple?'#40BF4A':'#E63946'}">${s.decouple?'✅ 0.1µF near chip → bounce absorbed':'⚠️ no decouple → GND spikes everywhere'}</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🧹 GND Bounce',subtitle:'Why 0.1µF caps are everywhere!',
+  vars:{spikePk:{label:'📈 peak',value:0,color:'#E63946'}},
+  extras:[{kind:'toggle',id:'dT',label:'💊 Decoupling cap',value:false,onToggle(v,s){s.decouple=v;}}],
+  lines:['Chip switches many outputs simultaneously','Large dI/dt through lead inductance','V = L × dI/dt → GND "bounces" up','Local cap supplies the pulse'],
+  phases:['switch','spike','ground','fix'],onInit(s){s.decouple=false;s.hist=[];s.t=0;},onReset(s){s.decouple=false;s.hist=[];s.t=0;},stage,
+  run(p,s,ui){s.t+=1;const n=['switch','spike','ground','fix'].indexOf(p)+1;ui.activeLine(n);const v=(Math.random()-0.5)*(s.decouple?0.4:4);s.hist.push(v);if(s.hist.length>80)s.hist.shift();}
+});
+</script></body></html>

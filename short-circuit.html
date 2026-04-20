@@ -1,0 +1,28 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Short Circuit</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const I = s.V / Math.max(0.05, s.R + 0.1);
+  const hot = I > 5;
+  return `<svg viewBox="0 0 540 240">
+    <rect width="540" height="240" fill="#F4E8CB"/>
+    <g transform="translate(80,100)"><rect width="80" height="60" fill="${hot?'#E63946':'#FFD700'}" stroke="#264653" stroke-width="3"/><text x="40" y="35" text-anchor="middle" font-size="14" font-weight="bold" fill="${hot?'#FFF':'#264653'}">${s.V}V</text></g>
+    <line x1="160" y1="130" x2="220" y2="130" stroke="${hot?'#E63946':'#264653'}" stroke-width="${hot?6:3}"/>
+    ${s.R > 0.1 ? `<rect x="220" y="115" width="${60+s.R*3}" height="30" fill="#BA8C63" stroke="#264653" stroke-width="2"/><text x="${250+s.R*1.5}" y="135" text-anchor="middle" font-size="11" font-weight="bold" fill="#FFF">${s.R.toFixed(1)}Ω</text>` : `<text x="270" y="135" text-anchor="middle" font-size="14" font-weight="bold" fill="#E63946">⚠️ NO LOAD</text>`}
+    <line x1="${s.R>0.1?280+s.R*3:270}" y1="130" x2="460" y2="130" stroke="${hot?'#E63946':'#264653'}" stroke-width="${hot?6:3}"/>
+    ${hot ? Array.from({length:6},(_,i)=>`<circle cx="${250+(Math.random()-0.5)*100}" cy="${80 + Math.random()*40}" r="${3+Math.random()*6}" fill="#FF6B35" opacity="${Math.random()}"/>`).join(''):''}
+    <text x="270" y="210" text-anchor="middle" font-size="14" font-weight="bold" fill="${hot?'#E63946':'#264653'}">I = ${I.toFixed(1)} A ${hot?'— 🔥 WIRE MELTS':''}</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'⚡ Short Circuit',subtitle:'No load = battery screams at infinity. Don\'t do it at home!',
+  vars:{I:{label:'I',value:0,color:'#E63946'}},
+  extras:[{kind:'slider',id:'rS',label:'Load R (Ω)',min:0,max:100,value:10,step:1,onInput(v,s){s.R=v;}}],
+  lines:['BATTERY pushes current','WIRE has tiny R','Ohm: I = V / R','R → 0 → I → 🔥'],
+  phases:['volt','wire','ohm','danger'],
+  onInit(s){s.V=9;s.R=10;},onReset(s){s.V=9;s.R=10;},stage,
+  run(phase,s,ui){const n=['volt','wire','ohm','danger'].indexOf(phase)+1;ui.activeLine(n);
+    if(phase==='ohm'){const I=s.V/Math.max(0.05,s.R+0.1);ui.setVar('I',I,{display:I.toFixed(1)+'A',flash:true});}
+    else if(phase==='danger')ui.narrate(s.R<1?'🔥 WIRE MELTING!':'✅ safe');
+  }
+});
+</script></body></html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Fail Lab</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+const FAULTS = [
+  { name:'cap shorted', reading:{A:'9V', B:'9V', C:'0V'}, answer:'C' },
+  { name:'resistor open', reading:{A:'9V', B:'0V', C:'0V'}, answer:'B' },
+  { name:'reversed LED',  reading:{A:'9V', B:'7V', C:'7V'}, answer:'LED' },
+  { name:'cold joint',    reading:{A:'9V', B:'9V', C:'random'}, answer:'joint' }
+];
+function stage(s){
+  const F = FAULTS[s.faultIdx];
+  const point = s.probe;
+  const read = F.reading[point] || '—';
+  const correct = s.guess === F.answer;
+  return `<svg viewBox="0 0 540 240">
+    <rect width="540" height="240" fill="#F4E8CB"/>
+    <g transform="translate(40,80)">
+      <rect width="60" height="50" fill="#FFD700" stroke="#264653" stroke-width="2"/><text x="30" y="30" text-anchor="middle" font-size="13" font-weight="bold">9V</text>
+    </g>
+    <line x1="100" y1="105" x2="160" y2="105" stroke="${point==='A'?'#FF6B35':'#264653'}" stroke-width="${point==='A'?4:2}"/>
+    <text x="130" y="95" text-anchor="middle" font-size="11" fill="#FF6B35" font-weight="bold">A</text>
+    <rect x="160" y="90" width="70" height="30" fill="#CCC" stroke="#264653" stroke-width="2"/>
+    <text x="195" y="110" text-anchor="middle" font-size="11" font-weight="bold">220Ω</text>
+    <line x1="230" y1="105" x2="290" y2="105" stroke="${point==='B'?'#FF6B35':'#264653'}" stroke-width="${point==='B'?4:2}"/>
+    <text x="260" y="95" text-anchor="middle" font-size="11" fill="#FF6B35" font-weight="bold">B</text>
+    <rect x="290" y="90" width="40" height="30" fill="#AA5555" stroke="#264653" stroke-width="2"/>
+    <text x="310" y="110" text-anchor="middle" font-size="10" font-weight="bold" fill="#FFF">LED</text>
+    <line x1="330" y1="105" x2="420" y2="105" stroke="${point==='C'?'#FF6B35':'#264653'}" stroke-width="${point==='C'?4:2}"/>
+    <text x="375" y="95" text-anchor="middle" font-size="11" fill="#FF6B35" font-weight="bold">C</text>
+    <rect x="420" y="90" width="60" height="30" fill="#87CEEB" stroke="#264653" stroke-width="2"/>
+    <text x="450" y="110" text-anchor="middle" font-size="10" font-weight="bold">cap</text>
+    <g transform="translate(150,160)">
+      <text font-size="13" font-weight="bold" fill="#264653">probing point ${point} → ${read}</text>
+      ${s.guess?`<text y="22" font-size="13" font-weight="bold" fill="${correct?'#40BF4A':'#E63946'}">guess: ${s.guess} — ${correct?'✅ correct!':'❌ try again'}</text>`:''}
+    </g>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🔧 Fail Lab — Find the Fault',subtitle:'Debug like an engineer!',
+  vars:{fault:{label:'💥 fault',value:'?',color:'#E63946'}},
+  extras:[
+    {kind:'slider',id:'fS',label:'Fault # (1-4)',min:0,max:3,value:0,step:1,onInput(v,s){s.faultIdx=v;}},
+    {kind:'slider',id:'pS',label:'Probe 0=none 1=A 2=B 3=C',min:0,max:3,value:0,step:1,onInput(v,s){s.probe=['none','A','B','C'][v];}},
+    {kind:'slider',id:'gS',label:'Guess 0=none 1=C 2=B 3=LED 4=joint',min:0,max:4,value:0,step:1,onInput(v,s){s.guess=[null,'C','B','LED','joint'][v];}}
+  ],
+  lines:['Measure voltage at each node','Compare to expected','Find the node where reality ≠ expected','Fault is at or before that node'],
+  phases:['probe','compare','narrow','fix'],onInit(s){s.faultIdx=0;s.probe='none';s.guess=null;},onReset(s){s.faultIdx=0;s.probe='none';s.guess=null;},stage,
+  run(p,s,ui){const n=['probe','compare','narrow','fix'].indexOf(p)+1;ui.activeLine(n);}
+});
+</script></body></html>

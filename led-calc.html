@@ -1,0 +1,34 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>LED + Resistor Calculator</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const I = (s.Vbat - s.Vf) / Math.max(1, s.R);
+  const status = I < 0.005 ? 'dim' : I < 0.025 ? 'ok' : I < 0.050 ? 'bright' : 'burn';
+  const color = status==='burn'?'#000':status==='dim'?'#553':'#ff2a2a';
+  const glow = status==='ok'?18:status==='bright'?28:status==='burn'?0:6;
+  return `<svg viewBox="0 0 540 260">
+    <rect width="540" height="260" fill="#F4E8CB"/>
+    <g transform="translate(100,130)"><rect width="60" height="40" fill="#FFD700" stroke="#264653" stroke-width="2"/><text x="30" y="25" text-anchor="middle" font-size="11" font-weight="bold">${s.Vbat}V</text></g>
+    <line x1="160" y1="150" x2="230" y2="150" stroke="#264653" stroke-width="3"/>
+    <rect x="230" y="140" width="80" height="20" fill="#BA8C63" stroke="#264653" stroke-width="2"/>
+    <text x="270" y="135" text-anchor="middle" font-size="11" font-weight="bold" fill="#264653">${s.R}Ω</text>
+    <line x1="310" y1="150" x2="380" y2="150" stroke="#264653" stroke-width="3"/>
+    <g transform="translate(410,150)">
+      ${glow>0?`<circle r="${glow+10}" fill="${color}" opacity="0.3"/>`:''}
+      <circle r="18" fill="${color}" stroke="#A4161A" stroke-width="3"/>
+    </g>
+    <text x="410" y="195" text-anchor="middle" font-size="11" font-weight="bold" fill="${status==='burn'?'#E63946':'#264653'}">${status==='burn'?'💥 BURNED':status==='bright'?'🔆 bright':status==='ok'?'✅ just right':'💡 dim'}</text>
+    <text x="270" y="230" text-anchor="middle" font-size="12" font-weight="bold" fill="#264653">I = (V − Vf) / R = (${s.Vbat} − ${s.Vf}) / ${s.R} = ${(I*1000).toFixed(1)}mA (aim 20mA)</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'💡 LED + Resistor',subtitle:'Pick R to get 20mA. Too low → burn. Too high → dim.',
+  vars:{I:{label:'I',value:0,color:'#E63946',note:'mA'}},
+  extras:[{kind:'slider',id:'vS',label:'Battery V',min:3,max:24,value:9,step:1,onInput(v,s){s.Vbat=v;}},{kind:'slider',id:'rS',label:'Resistor Ω',min:1,max:2000,value:330,step:10,onInput(v,s){s.R=v;}},{kind:'slider',id:'fS',label:'LED Vf',min:17,max:35,value:20,step:1,onInput(v,s){s.Vf=v/10;}}],
+  lines:['V across LED = battery − resistor drop','I = (Vbat − Vf) / R','Aim 20mA · exceed 50mA → burn','TOO LITTLE current → dim'],
+  phases:['volt','ohm','check','status'],
+  onInit(s){s.Vbat=9;s.R=330;s.Vf=2.0;},onReset(s){s.Vbat=9;s.R=330;s.Vf=2.0;},stage,
+  run(phase,s,ui){const n=['volt','ohm','check','status'].indexOf(phase)+1;ui.activeLine(n);
+    if(phase==='ohm'){const I=(s.Vbat-s.Vf)/Math.max(1,s.R)*1000;ui.setVar('I',I,{display:I.toFixed(1)+'mA',flash:true});}
+  }
+});
+</script></body></html>

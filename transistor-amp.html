@@ -1,0 +1,32 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Transistor Amplifier</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const W=500, H=60;
+  const n=80;
+  const inWave = Array.from({length:n},(_,i)=>`${(i/(n-1))*W},${H/2 + Math.sin(i/5)*s.amp*0.5}`).join(' ');
+  const gain = s.bias<10?0:s.bias>90?0:s.gain;
+  const clip = s.gain>20 && s.amp>10;
+  const outWave = Array.from({length:n},(_,i)=>{const v=Math.sin(i/5)*s.amp*gain*0.2;const c=clip?Math.max(-30,Math.min(30,v)):v;return `${(i/(n-1))*W},${H/2 - c}`}).join(' ');
+  return `<svg viewBox="0 0 540 260">
+    <rect width="540" height="260" fill="#F4E8CB"/>
+    <rect x="10" y="30" width="${W+20}" height="${H+20}" fill="#0A0F1E" stroke="#FFD700" stroke-width="2" rx="6"/>
+    <polyline points="${inWave}" fill="none" stroke="#457B9D" stroke-width="2" transform="translate(10,30)"/>
+    <text x="15" y="48" font-size="10" fill="#457B9D" font-weight="bold">INPUT (tiny)</text>
+    <rect x="10" y="130" width="${W+20}" height="${H+20}" fill="#0A0F1E" stroke="#FFD700" stroke-width="2" rx="6"/>
+    <polyline points="${outWave}" fill="none" stroke="${clip?'#E63946':'#40BF4A'}" stroke-width="2" transform="translate(10,130)"/>
+    <text x="15" y="148" font-size="10" fill="${clip?'#E63946':'#40BF4A'}" font-weight="bold">OUTPUT (${clip?'CLIPPED':'amplified'}) ×${gain.toFixed(0)}</text>
+    <text x="270" y="235" text-anchor="middle" font-size="12" font-weight="bold" fill="#264653">bias=${s.bias}% · bias too low/high → transistor cuts off</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🔊 Transistor Amplifier',subtitle:'Small wave in, big wave out — but bias correctly!',
+  vars:{gain:{label:'×gain',value:50,color:'#40BF4A'}},
+  extras:[{kind:'slider',id:'aS',label:'Input amp',min:1,max:30,value:10,step:1,onInput(v,s){s.amp=v;}},{kind:'slider',id:'gS',label:'Gain',min:1,max:100,value:50,step:1,onInput(v,s){s.gain=v;}},{kind:'slider',id:'biS',label:'Bias %',min:0,max:100,value:50,step:5,onInput(v,s){s.bias=v;}}],
+  lines:['TINY input riding on bias','Transistor amplifies by ×gain','If bias wrong → clipping/cutoff','Output driven into load'],
+  phases:['input','bias','amp','clip'],
+  onInit(s){s.amp=10;s.gain=50;s.bias=50;},onReset(s){s.amp=10;s.gain=50;s.bias=50;},stage,
+  run(phase,s,ui){const n=['input','bias','amp','clip'].indexOf(phase)+1;ui.activeLine(n);
+    if(phase==='clip')ui.narrate(s.gain>20&&s.amp>10?'⚠️ clipping — distortion':'✅ clean');
+  }
+});
+</script></body></html>

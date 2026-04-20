@@ -1,0 +1,28 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Conductor / Insulator / Semiconductor</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const LATT = [];
+  for (let r=0; r<4; r++) for (let c=0; c<12; c++) LATT.push({x: 30+c*40, y: 50+r*30});
+  const mat = s.material;
+  const carriers = mat==='conductor'?30 : mat==='insulator'?0 : mat==='n'?18 : mat==='p'?0 : 0;
+  const holes = mat==='p'?18 : 0;
+  return `<svg viewBox="0 0 540 260">
+    <rect width="540" height="260" fill="#0A0F1E"/>
+    ${LATT.map(p=>`<circle cx="${p.x}" cy="${p.y}" r="7" fill="#457B9D" stroke="#88A" stroke-width="1"/>`).join('')}
+    ${Array.from({length:carriers},(_,i)=>`<circle cx="${40+Math.random()*440}" cy="${60+Math.random()*100}" r="4" fill="#FFD700" stroke="#E63946" stroke-width="0.5"/>`).join('')}
+    ${Array.from({length:holes},(_,i)=>`<circle cx="${40+Math.random()*440}" cy="${60+Math.random()*100}" r="5" fill="none" stroke="#E63946" stroke-width="2"/>`).join('')}
+    <text x="20" y="200" font-size="13" font-weight="bold" fill="#FFF">${mat.toUpperCase()} — ${mat==='conductor'?'free electrons everywhere':mat==='insulator'?'electrons locked to atoms':mat==='n'?'doped: extra electrons':mat==='p'?'doped: missing electrons = "holes"':'pure silicon (undoped)'}</text>
+    <text x="20" y="220" font-size="11" fill="#FFD700">● electron carriers: ${carriers}</text>
+    <text x="200" y="220" font-size="11" fill="#E63946">○ holes: ${holes}</text>
+    <text x="20" y="238" font-size="11" fill="#40BF4A" font-weight="bold">put N next to P → that's a DIODE junction!</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🔬 Conductor / Insulator / Semiconductor',subtitle:'See atoms, see electrons!',
+  vars:{material:{label:'🔮 material',value:'conductor',color:'#FFD700'}},
+  extras:[{kind:'slider',id:'mS',label:'(0=cond 1=ins 2=pure 3=N 4=P)',min:0,max:4,value:0,step:1,onInput(v,s){s.material=['conductor','insulator','silicon','n','p'][v];}}],
+  lines:['Lattice: atoms in a grid','Conductor: electrons roam free','Insulator: electrons locked','Doping N adds electrons, P adds holes'],
+  phases:['lattice','roam','lock','dope'],onInit(s){s.material='conductor';},onReset(s){s.material='conductor';},stage,
+  run(p,s,ui){const n=['lattice','roam','lock','dope'].indexOf(p)+1;ui.activeLine(n);ui.setVar('material',s.material,{display:s.material.toUpperCase()});}
+});
+</script></body></html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Brain = circuit</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const fire = s.stim > s.thresh;
+  return `<svg viewBox="0 0 540 240">
+    <rect width="540" height="240" fill="#F4E8CB"/>
+    <g transform="translate(60,80)">
+      <circle r="30" fill="#E63946" stroke="#264653" stroke-width="3"/>
+      <text y="4" text-anchor="middle" font-size="14" font-weight="bold" fill="#FFF">soma</text>
+      ${[45,90,135,225].map(a=>{const x=Math.cos(a*Math.PI/180)*45,y=Math.sin(a*Math.PI/180)*45;return `<line x1="0" y1="0" x2="${x}" y2="${y}" stroke="#264653" stroke-width="3"/><circle cx="${x}" cy="${y}" r="5" fill="#457B9D"/>`;}).join('')}
+    </g>
+    <line x1="90" y1="80" x2="${fire?460:200}" y2="80" stroke="${fire?'#FFD700':'#888'}" stroke-width="${fire?5:2}"/>
+    ${fire?Array.from({length:5},(_,i)=>`<circle cx="${110+i*70}" cy="80" r="6" fill="#FFD700"><animate attributeName="r" values="4;10;4" dur="0.4s" repeatCount="indefinite"/></circle>`).join(''):''}
+    <g transform="translate(480,80)"><polygon points="0,-10 0,10 20,0" fill="#40BF4A" stroke="#264653" stroke-width="2"/><text x="24" y="4" font-size="11" font-weight="bold" fill="#40BF4A">axon → next</text></g>
+    <g transform="translate(30,160)">
+      <text font-size="12" font-weight="bold" fill="#264653">stimulus = ${s.stim} · threshold = ${s.thresh}</text>
+      <text y="20" font-size="11" fill="#264653">analogy: Schmitt trigger — same math, wet meat vs silicon</text>
+    </g>
+    <text x="270" y="220" text-anchor="middle" font-size="13" font-weight="bold" fill="${fire?'#FFD700':'#264653'}">${fire?'⚡ FIRED! action potential travels at ~100 m/s':'🌙 sub-threshold — nothing happens'}</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🧠 Your Brain is a Circuit',subtitle:'Neurons = Schmitt triggers!',
+  vars:{fired:{label:'⚡ fired',value:'no',color:'#FFD700'}},
+  extras:[{kind:'slider',id:'sS',label:'Stimulus',min:0,max:100,value:30,step:5,onInput(v,s){s.stim=v;}},{kind:'slider',id:'tS',label:'Threshold',min:10,max:90,value:50,step:5,onInput(v,s){s.thresh=v;}}],
+  lines:['Dendrites collect signals from other neurons','Soma sums them','Above threshold → action potential','Axon propagates the spike'],
+  phases:['collect','sum','threshold','fire'],onInit(s){s.stim=30;s.thresh=50;},onReset(s){s.stim=30;s.thresh=50;},stage,
+  run(p,s,ui){const n=['collect','sum','threshold','fire'].indexOf(p)+1;ui.activeLine(n);if(p==='fire'){const f=s.stim>s.thresh;ui.setVar('fired',f?'YES':'no',{display:f?'YES':'no',flash:true});if(f)ui.check(4,true);}}
+});
+</script></body></html>

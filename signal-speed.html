@@ -1,0 +1,32 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Signal at light speed</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  // delay (ns) = L(m)/200m/μs = L*5 ns/m
+  const delay_ns = s.cableM * 5;
+  const frac = Math.min(1, s.t / Math.max(1, delay_ns/5));
+  return `<svg viewBox="0 0 540 260">
+    <rect width="540" height="260" fill="#F4E8CB"/>
+    <g transform="translate(20,40)">
+      <rect width="500" height="80" fill="#2B2B2B" rx="8"/>
+      <text x="20" y="20" font-size="11" fill="#FFD700" font-weight="bold">left scope (TX)</text>
+      <text x="280" y="20" font-size="11" fill="#40BF4A" font-weight="bold">right scope (RX)</text>
+      <line x1="10" y1="60" x2="60" y2="60" stroke="#FFD700" stroke-width="2"/><line x1="60" y1="60" x2="60" y2="35" stroke="#FFD700" stroke-width="2"/><line x1="60" y1="35" x2="120" y2="35" stroke="#FFD700" stroke-width="2"/><line x1="120" y1="35" x2="120" y2="60" stroke="#FFD700" stroke-width="2"/>
+      ${frac >= 1 ? '<line x1="270" y1="60" x2="310" y2="60" stroke="#40BF4A" stroke-width="2"/><line x1="310" y1="60" x2="310" y2="35" stroke="#40BF4A" stroke-width="2"/><line x1="310" y1="35" x2="370" y2="35" stroke="#40BF4A" stroke-width="2"/><line x1="370" y1="35" x2="370" y2="60" stroke="#40BF4A" stroke-width="2"/>' : ''}
+    </g>
+    <line x1="30" y1="170" x2="510" y2="170" stroke="#264653" stroke-width="3"/>
+    <text x="30" y="185" font-size="10" fill="#264653" font-weight="bold">TX</text>
+    <text x="495" y="185" font-size="10" fill="#264653" font-weight="bold">RX</text>
+    <circle cx="${30 + frac*480}" cy="170" r="8" fill="#FFD700" stroke="#264653" stroke-width="2"/>
+    <text x="270" y="210" text-anchor="middle" font-size="12" font-weight="bold" fill="#264653">cable ${s.cableM}m · delay ≈ ${delay_ns.toFixed(0)} ns (light: 200m/μs in cable)</text>
+    <text x="270" y="232" text-anchor="middle" font-size="11" fill="#264653">signal in flight: ${(frac*100).toFixed(0)}% of the way</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🌊 Signal at Light Speed',subtitle:'Pulse takes real time to cross a cable!',
+  vars:{cableM:{label:'📏 cable',value:100,color:'#264653',note:'m'},delay:{label:'⏱️ delay',value:500,color:'#FFD700',note:'ns'}},
+  extras:[{kind:'slider',id:'lS',label:'Cable length (m)',min:1,max:300,value:100,step:5,onInput(v,s){s.cableM=v;s.t=0;}}],
+  lines:['TX sends pulse at t=0','Pulse travels at ~200 m/μs in coax','Arrives at RX after L/200 μs','Long cable → visible delay'],
+  phases:['send','travel','travel2','arrive'],onInit(s){s.cableM=100;s.t=0;},onReset(s){s.t=0;},stage,
+  run(p,s,ui){const n=['send','travel','travel2','arrive'].indexOf(p)+1;ui.activeLine(n);s.t+=s.cableM/4;}
+});
+</script></body></html>

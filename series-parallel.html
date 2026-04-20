@@ -1,0 +1,46 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Series vs Parallel</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const Rled = 100;
+  const Iseries = s.br1 && s.br2 ? s.V / (Rled*2) : 0;
+  const Ipar = (s.br1?s.V/Rled:0) + (s.br2?s.V/Rled:0);
+  const L = (on,x,y,I) => `<g transform="translate(${x},${y})">${on&&I>0.01?`<circle r="${6+I*400}" fill="#ff4a4a" opacity="0.4"/>`:''}<circle r="10" fill="${on&&I>0.01?'#E63946':'#666'}" stroke="#A4161A" stroke-width="2"/></g>`;
+  return `<svg viewBox="0 0 540 260">
+    <rect width="540" height="260" fill="#F4E8CB"/>
+    <text x="135" y="20" text-anchor="middle" font-size="13" font-weight="bold" fill="#264653">SERIES</text>
+    <g>
+      <rect x="40" y="40" width="30" height="40" fill="#FFD700" stroke="#264653" stroke-width="2"/><text x="55" y="65" text-anchor="middle" font-size="10">${s.V}V</text>
+      <line x1="70" y1="60" x2="120" y2="60" stroke="#264653" stroke-width="2"/>
+      ${L(s.br1,135,60,Iseries)}
+      <line x1="150" y1="60" x2="200" y2="60" stroke="#264653" stroke-width="2"/>
+      ${L(s.br2,215,60,Iseries)}
+      <line x1="230" y1="60" x2="230" y2="110" stroke="#264653" stroke-width="2"/>
+      <line x1="40" y1="80" x2="40" y2="110" stroke="#264653" stroke-width="2"/>
+      <line x1="40" y1="110" x2="230" y2="110" stroke="#264653" stroke-width="2"/>
+      <text x="135" y="130" text-anchor="middle" font-size="11" fill="#264653">${s.br1&&s.br2?`${(Iseries*1000).toFixed(0)}mA both lit`:'❌ chain broken, all dark'}</text>
+    </g>
+    <text x="405" y="20" text-anchor="middle" font-size="13" font-weight="bold" fill="#264653">PARALLEL</text>
+    <g>
+      <rect x="310" y="40" width="30" height="40" fill="#FFD700" stroke="#264653" stroke-width="2"/><text x="325" y="65" text-anchor="middle" font-size="10">${s.V}V</text>
+      <line x1="340" y1="60" x2="500" y2="60" stroke="#264653" stroke-width="2"/>
+      ${L(s.br1,390,60,s.br1?s.V/Rled:0)}
+      ${L(s.br2,470,60,s.br2?s.V/Rled:0)}
+      <line x1="390" y1="75" x2="390" y2="110" stroke="#264653" stroke-width="2"/>
+      <line x1="470" y1="75" x2="470" y2="110" stroke="#264653" stroke-width="2"/>
+      <line x1="310" y1="80" x2="310" y2="110" stroke="#264653" stroke-width="2"/>
+      <line x1="310" y1="110" x2="500" y2="110" stroke="#264653" stroke-width="2"/>
+      <text x="405" y="130" text-anchor="middle" font-size="11" fill="#264653">total: ${(Ipar*1000).toFixed(0)}mA · each branch independent</text>
+    </g>
+    <text x="270" y="230" text-anchor="middle" font-size="12" font-weight="bold" fill="#264653">Flip the switches — series dies if any branch breaks, parallel keeps going</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🪢 Series vs Parallel',subtitle:'Break a branch — which setup survives?',
+  vars:{V:{label:'V',value:6,color:'#FFD700'}},
+  extras:[{kind:'slider',id:'vS',label:'V',min:3,max:12,value:6,step:1,onInput(v,s){s.V=v;}},{kind:'toggle',id:'b1',label:'LED 1',value:true,onToggle(v,s){s.br1=v;}},{kind:'toggle',id:'b2',label:'LED 2',value:true,onToggle(v,s){s.br2=v;}}],
+  lines:['SERIES: one dies → all die','PARALLEL: one dies → others keep','Series: same current everywhere','Parallel: same V, different I'],
+  phases:['series','parallel','current','voltage'],
+  onInit(s){s.V=6;s.br1=true;s.br2=true;},onReset(s){s.V=6;s.br1=true;s.br2=true;},stage,
+  run(phase,s,ui){ui.activeLine(['series','parallel','current','voltage'].indexOf(phase)+1);}
+});
+</script></body></html>

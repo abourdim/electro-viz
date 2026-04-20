@@ -1,0 +1,24 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Antenna</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const t=s.t;
+  const wavelen=200/s.freq;
+  return `<svg viewBox="0 0 540 260">
+    <rect width="540" height="260" fill="#F4E8CB"/>
+    <rect x="70" y="160" width="50" height="20" fill="#FFD700" stroke="#264653" stroke-width="2"/>
+    <line x1="95" y1="160" x2="95" y2="80" stroke="#264653" stroke-width="4"/>
+    <text x="95" y="75" text-anchor="middle" font-size="10" font-weight="bold">antenna</text>
+    ${Array.from({length:8},(_,i)=>{const r=(i*wavelen + t*5) % 400;return `<circle cx="95" cy="170" r="${r}" fill="none" stroke="#457B9D" stroke-width="2" opacity="${Math.max(0,1-r/400)}"/>`;}).join('')}
+    <text x="270" y="240" text-anchor="middle" font-size="12" font-weight="bold" fill="#264653">freq = ${s.freq} · wavelength = ${wavelen.toFixed(0)}px · higher freq = tighter ripples</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'📡 Antenna Radiates',subtitle:'AC in wire → ripples in space at light speed',
+  vars:{freq:{label:'f',value:2,color:'#E63946'}},
+  extras:[{kind:'slider',id:'fS',label:'freq',min:1,max:10,value:2,step:1,onInput(v,s){s.freq=v;}}],
+  lines:['AC current in antenna','E field oscillates','Ripples propagate outward','Distant antenna picks them up'],
+  phases:['ac','oscillate','ripple','receive'],
+  onInit(s){s.freq=2;s.t=0;},onReset(s){s.t=0;},stage,
+  run(phase,s,ui){s.t+=5;ui.activeLine(['ac','oscillate','ripple','receive'].indexOf(phase)+1);}
+});
+</script></body></html>

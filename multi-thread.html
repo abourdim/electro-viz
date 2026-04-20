@@ -1,0 +1,39 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Multithreading lite</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  return `<svg viewBox="0 0 540 240">
+    <rect width="540" height="240" fill="#F4E8CB"/>
+    <g transform="translate(30,30)">
+      <rect width="220" height="80" fill="${s.taskA>0?'#40BF4A':'#DDD'}" stroke="#264653" stroke-width="3" rx="6"/>
+      <text x="110" y="22" text-anchor="middle" font-size="13" font-weight="bold" fill="#264653">TASK A · blink</text>
+      <text x="110" y="46" text-anchor="middle" font-size="18">${s.taskA>10?'💡':'·'}</text>
+      <text x="110" y="70" text-anchor="middle" font-size="11" fill="#264653">progress: ${s.taskA}</text>
+    </g>
+    <g transform="translate(290,30)">
+      <rect width="220" height="80" fill="${s.taskB>0?'#E63946':'#DDD'}" stroke="#264653" stroke-width="3" rx="6"/>
+      <text x="110" y="22" text-anchor="middle" font-size="13" font-weight="bold" fill="#FFF">TASK B · beep</text>
+      <text x="110" y="46" text-anchor="middle" font-size="18">${s.taskB%2===0?'🔔':'🔕'}</text>
+      <text x="110" y="70" text-anchor="middle" font-size="11" fill="#FFF">progress: ${s.taskB}</text>
+    </g>
+    <g transform="translate(30,140)">
+      <rect width="480" height="40" fill="#FFD700" stroke="#264653" stroke-width="3" rx="6"/>
+      <rect width="${s.blocked?0:240}" height="40" fill="#40BF4A" rx="6"/>
+      <rect x="${s.blocked?0:240}" width="${s.blocked?480:240}" height="40" fill="#E63946" rx="6"/>
+      <text x="240" y="26" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFF">CPU timeline — ${s.blocked?'⛔ BLOCKING DELAY':'✅ cooperative'}</text>
+    </g>
+    <text x="270" y="210" text-anchor="middle" font-size="11" font-weight="bold" fill="${s.blocked?'#E63946':'#264653'}">${s.blocked?'blocking delay() starves task B':'round-robin — both advance'}</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🧵 Multitask on one CPU',subtitle:'Cooperative time-slicing!',
+  vars:{taskA:{label:'💡 A',value:0,color:'#40BF4A'},taskB:{label:'🔔 B',value:0,color:'#E63946'}},
+  extras:[{kind:'toggle',id:'bT',label:'⛔ Add blocking delay to A',value:false,onToggle(v,s){s.blocked=v;}}],
+  lines:['Timer slices CPU time','Each task gets a slice','Return voluntarily — next task runs','Blocking call starves the other task'],
+  phases:['tick','a','b','check'],onInit(s){s.taskA=0;s.taskB=0;s.blocked=false;},onReset(s){s.taskA=0;s.taskB=0;s.blocked=false;},stage,
+  run(p,s,ui){const n=['tick','a','b','check'].indexOf(p)+1;ui.activeLine(n);
+    if(p==='a'){s.taskA++;ui.setVar('taskA',s.taskA,{flash:true});}
+    else if(p==='b'&&!s.blocked){s.taskB++;ui.setVar('taskB',s.taskB,{flash:true});}
+    else if(p==='check'&&s.blocked){ui.narrate('⛔ B starved!');}
+  }
+});
+</script></body></html>

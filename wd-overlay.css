@@ -1,0 +1,45 @@
+/* Workshop-DIY overlay for viz galleries — fits inside the template's .card */
+.viz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+.viz-card {
+  background: var(--card-bg, #fff);
+  color: var(--text, #222);
+  border: 2px solid var(--accent, #ffd700);
+  border-radius: 14px;
+  padding: 14px;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+  position: relative;
+  min-height: 120px;
+}
+.viz-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 0 rgba(0,0,0,0.18);
+  background: var(--hover-bg, #fffbe0);
+}
+.viz-card .vc-emoji { font-size: 1.9rem; }
+.viz-card .vc-name  { font-size: 1rem; font-weight: 700; color: var(--accent, #ffd700); }
+.viz-card .vc-desc  { font-size: 0.82rem; opacity: 0.85; line-height: 1.35; }
+.viz-card.top5 { border-color: var(--accent-2, #e63946); }
+.viz-card.top5::before {
+  content: '⭐ TOP 5';
+  position: absolute; top: -9px; right: 10px;
+  background: var(--accent-2, #e63946); color: #fff;
+  padding: 2px 9px; border-radius: 10px;
+  font-size: 0.7rem; font-weight: 700;
+  box-shadow: 0 2px 0 rgba(0,0,0,0.15);
+}
+.viz-section-label {
+  font-size: 0.9rem; font-weight: 700;
+  color: var(--accent, #ffd700);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 18px 0 6px;
+}

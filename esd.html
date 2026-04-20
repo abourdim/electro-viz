@@ -1,0 +1,31 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>ESD zap</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const zap = s.charge > 70 && !s.strap;
+  const V = s.charge * 200;
+  return `<svg viewBox="0 0 540 240">
+    <rect width="540" height="240" fill="#F4E8CB"/>
+    <g transform="translate(100,110)">
+      <text font-size="48">${s.charge>50?'⚡':s.charge>20?'🎈':'👕'}</text>
+      <text y="50" text-anchor="middle" font-size="11" font-weight="bold" fill="#264653">${V.toFixed(0)}V on finger</text>
+    </g>
+    <g transform="translate(300,100)">
+      <rect width="80" height="60" fill="${zap?'#2B2B2B':'#457B9D'}" stroke="#264653" stroke-width="3" rx="4"/>
+      <text x="40" y="24" text-anchor="middle" font-size="10" font-weight="bold" fill="#FFD700">MOSFET</text>
+      <text x="40" y="44" text-anchor="middle" font-size="14">${zap?'💥':'🔌'}</text>
+    </g>
+    ${s.strap?'<g transform="translate(180,180)"><text font-size="13" fill="#40BF4A" font-weight="bold">🩹 wrist strap → ground — safe!</text></g>':''}
+    ${zap?'<path d="M 200 140 L 260 130 L 240 145 L 290 135" fill="none" stroke="#FFD700" stroke-width="3"/>':''}
+    <text x="270" y="50" text-anchor="middle" font-size="13" font-weight="bold" fill="${zap?'#E63946':'#264653'}">${zap?'💥 gate oxide punctured — silent death':'handle with care'}</text>
+    <text x="270" y="220" text-anchor="middle" font-size="11" fill="#264653">humans: up to 25kV. MOSFET gates: 50V breaks them. That\'s why pros wear straps.</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'⚡ ESD Zap',subtitle:'Invisible killer of modern chips!',
+  vars:{V:{label:'⚡ V',value:0,color:'#E63946'}},
+  extras:[{kind:'slider',id:'cS',label:'Charge level',min:0,max:100,value:30,step:5,onInput(v,s){s.charge=v;}},{kind:'toggle',id:'sT',label:'🩹 Wrist strap',value:false,onToggle(v,s){s.strap=v;}}],
+  lines:['Rub something → static builds','Up to 25kV on your finger','Touch chip → spark (or silent)','Gate oxide punctures → dead'],
+  phases:['rub','build','touch','break'],onInit(s){s.charge=30;s.strap=false;},onReset(s){s.charge=30;s.strap=false;},stage,
+  run(p,s,ui){const n=['rub','build','touch','break'].indexOf(p)+1;ui.activeLine(n);ui.setVar('V',s.charge*200,{display:(s.charge*200)+'V'});}
+});
+</script></body></html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Electron microscope</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const driftPxPerTick = s.V * 0.4;
+  const dots = Array.from({length:40},(_,i)=>{
+    const x = ((i*29 + s.t*driftPxPerTick + Math.sin(i + s.t*0.3)*10) % 480) + 20;
+    const y = 70 + (i%5)*20 + Math.sin(s.t*0.2 + i)*4;
+    return `<circle cx="${x}" cy="${y}" r="3" fill="#FFD700"/>`;
+  }).join('');
+  return `<svg viewBox="0 0 540 240">
+    <rect width="540" height="240" fill="#0A0F1E"/>
+    <rect x="10" y="40" width="520" height="120" fill="#457B9D" opacity="0.15" stroke="#457B9D" stroke-width="1"/>
+    ${dots}
+    <text x="20" y="30" font-size="11" fill="#40BF4A" font-weight="bold">10,000× zoom — copper wire cross-section</text>
+    <text x="20" y="185" font-size="11" fill="#FFD700" font-weight="bold">⚠️ electrons drift slowly (mm/hour!)</text>
+    <text x="20" y="205" font-size="11" fill="#E63946" font-weight="bold">…but the SIGNAL travels at light speed via the field wave!</text>
+    <text x="20" y="225" font-size="11" fill="#FFF">V=${s.V}V · drift rate visible at this zoom</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'⚛️ Electron Microscope',subtitle:'Zoom 10,000× into a wire — see the truth!',
+  vars:{V:{label:'🔋 V',value:5,color:'#FFD700'},drift:{label:'🐌 drift',value:'mm/h',color:'#E63946'}},
+  extras:[{kind:'slider',id:'vS',label:'V applied',min:0,max:20,value:5,step:1,onInput(v,s){s.V=v;}}],
+  lines:['Zoom in on copper atoms','Electrons bounce randomly (thermal)','Voltage adds tiny drift bias','Drift is SLOW — signal is field'],
+  phases:['zoom','thermal','drift','signal'],onInit(s){s.V=5;s.t=0;},onReset(s){s.t=0;},stage,
+  run(p,s,ui){s.t+=1;const n=['zoom','thermal','drift','signal'].indexOf(p)+1;ui.activeLine(n);if(p==='signal')ui.narrate('⚡ wave travels at c, electrons crawl');}
+});
+</script></body></html>

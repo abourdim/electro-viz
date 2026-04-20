@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en" dir="ltr" data-theme="robot">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Electro Viz — Workshop DIY</title>
+  <meta name="description" content="70 phase-stepped electronics visualizers — Workshop-DIY gallery for kids." />
+  <meta name="author" content="Workshop-DIY — abourdim" />
+  <meta property="og:title" content="Electro Viz — Workshop DIY" />
+  <meta property="og:description" content="70 phase-stepped electronics visualizers." />
+  <meta property="og:type" content="website" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#08091a" />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Righteous&family=Tajawal:wght@400;500;700&family=Bangers&family=Orbitron:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="wd-style.css" />
+  <link rel="stylesheet" href="wd-overlay.css" />
+</head>
+<body>
+  <div class="splash" id="splash" onclick="dismissSplash()">
+    <div class="splash-inner">
+      <div class="splash-logo" id="splashLogo"></div>
+      <div class="splash-title">Electro Viz</div>
+      <div class="splash-sub">⚡ volts · 💧 amps · 🔧 ohms</div>
+      <div class="splash-hint" data-i18n="splashHint">tap to skip</div>
+    </div>
+  </div>
+
+  <div class="app">
+    <div class="deco-band top-band" aria-hidden="true"></div>
+    <div class="rows-container">
+      <div class="header">
+        <div class="bismillah" aria-hidden="true"><span class="bism-ornament">&#x2726;</span> بِسْمِ ٱللَّٰهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ <span class="bism-ornament">&#x2726;</span></div>
+        <div class="title-block">
+          <div class="logo-wrap" id="logoWrap"></div>
+          <div><h1 data-i18n="title">Electro Viz</h1><div class="subtitle">⚡ volts · 💧 amps · 🔧 ohms</div></div>
+        </div>
+        <div class="header-right">
+          <div class="header-buttons">
+            <button id="helpBtn" class="btn-icon-only" aria-label="Help">❓</button>
+            <button id="settingsBtn" class="btn-icon-only" aria-label="Settings">⚙️</button>
+            <button id="logBtn" class="btn-icon-only" aria-label="Activity Log">📜</button>
+          </div>
+          <div class="status-pill" id="statusPill"><span class="status-dot" id="statusDot"></span><span id="statusText">70 visualizers</span></div>
+        </div>
+      </div>
+
+      <div class="card" id="mainCard">
+        <div class="card-header"><div>
+          <div class="card-title"><span class="icon">⚡</span> <span data-i18n="mainSection">Gallery</span></div>
+          <div class="card-subtitle">70 electronics concepts — phase-stepped for kids <span class="version-tag">v1.2</span></div>
+        </div></div>
+        <div class="viz-section-label">⭐ Top 5 — Must-Ships</div>
+        <div class="viz-grid">
+          <a class="viz-card top5" href="ohm-water.html"><div class="vc-emoji">💧</div><div class="vc-name">Ohm\'s Law — Water Pipe</div><div class="vc-desc">The universal foundation: V=IR via hydraulics.</div></a>
+          <a class="viz-card top5" href="led-calc.html"><div class="vc-emoji">💡</div><div class="vc-name">LED + Resistor Calculator</div><div class="vc-desc">Save your first LED from burning up.</div></a>
+          <a class="viz-card top5" href="capacitor-bucket.html"><div class="vc-emoji">🪣</div><div class="vc-name">Capacitor = Bucket</div><div class="vc-desc">Unlocks timing, filtering, power supplies at once.</div></a>
+          <a class="viz-card top5" href="logic-gates.html"><div class="vc-emoji">🧠</div><div class="vc-name">Logic Gates</div><div class="vc-desc">Switches + gates = digital → code bridge.</div></a>
+          <a class="viz-card top5" href="multimeter.html"><div class="vc-emoji">📏</div><div class="vc-name">Multimeter School</div><div class="vc-desc">The #1 tool they\'ll use for life.</div></a>
+        </div>
+      </div>
+
+      <details class="collapsible" open>
+        <summary><span class="icon">🔌</span> Foundations — V, I, R</summary>
+        <div class="card"><div class="viz-grid">
+          <a class="viz-card" href="ohm-water.html"><div class="vc-emoji">💧</div><div class="vc-name">Ohm\'s Water Pipe</div><div class="vc-desc">V = pressure, I = flow.</div></a>
+          <a class="viz-card" href="electron-parade.html"><div class="vc-emoji">⚛️</div><div class="vc-name">Electron Parade</div><div class="vc-desc">Watch charges actually move.</div></a>
+          <a class="viz-card" href="ohm-dial.html"><div class="vc-emoji">⚡</div><div class="vc-name">Ohm\'s Dial</div><div class="vc-desc">Three dials, one equation.</div></a>
+          <a class="viz-card" href="resistor-heat.html"><div class="vc-emoji">🌡️</div><div class="vc-name">Resistor Heat</div><div class="vc-desc">Too much current → glow → smoke.</div></a>
+          <a class="viz-card" href="power.html"><div class="vc-emoji">⚡</div><div class="vc-name">Power P=V×I</div><div class="vc-desc">Watts = energy per second.</div></a>
+        </div></div>
+      </details>
+
+      <details class="collapsible">
+        <summary><span class="icon">💡</span> LEDs, Switches, Breadboards</summary>
+        <div class="card"><div class="viz-grid">
+          <a class="viz-card" href="led-calc.html"><div class="vc-emoji">💡</div><div class="vc-name">LED Calculator</div><div class="vc-desc">Pick R for 20mA.</div></a>
+          <a class="viz-card" href="breadboard.html"><div class="vc-emoji">🔌</div><div class="vc-name">Breadboard Wiring</div><div class="vc-desc">Hidden rails revealed.</div></a>
+          <a class="viz-card" href="short-circuit.html"><div class="vc-emoji">🔥</div><div class="vc-name">Short Circuit</div><div class="vc-desc">Direct-connect → fire!</div></a>
+          <a class="viz-card" href="series-parallel.html"><div class="vc-emoji">🪢</div><div class="vc-name">Series vs Parallel</div><div class="vc-desc">Two LEDs, two fates.</div></a>
+          <a class="viz-card" href="polarity.html"><div class="vc-emoji">🔄</div><div class="vc-name">Polarity Matters</div><div class="vc-desc">Reverse → diode blocks, cap pops.</div></a>
+        </div></div>
+      </details>
+
+      <details class="collapsible">
+        <summary><span class="icon">🪣</span> Caps, Inductors, Timing</summary>
+        <div class="card"><div class="viz-grid">
+          <a class="viz-card" href="capacitor-bucket.html"><div class="vc-emoji">🪣</div><div class="vc-name">Capacitor = Bucket</div><div class="vc-desc">Charging curves visible.</div></a>
+          <a class="viz-card" href="rc-timing.html"><div class="vc-emoji">⏲️</div><div class="vc-name">RC Timing</div><div class="vc-desc">Blink from a cap + resistor.</div></a>
+          <a class="viz-card" href="inductor.html"><div class="vc-emoji">🧲</div><div class="vc-name">Inductor</div><div class="vc-desc">Resists change, spikes on off.</div></a>
+          <a class="viz-card" href="battery-capacity.html"><div class="vc-emoji">🔋</div><div class="vc-name">Battery Capacity</div><div class="vc-desc">mAh → runtime.</div></a>
+          <a class="viz-card" href="battery-sag.html"><div class="vc-emoji">🪫</div><div class="vc-name">Battery Sag</div><div class="vc-desc">Hidden internal resistance.</div></a>
+          <a class="viz-card" href="supercap.html"><div class="vc-emoji">⚡</div><div class="vc-name">Cap vs Supercap vs Battery</div><div class="vc-desc">Drag race!</div></a>
+          <a class="viz-card" href="coin-battery.html"><div class="vc-emoji">🪙</div><div class="vc-name">Coin Battery Cutaway</div><div class="vc-desc">Inside a CR2032.</div></a>
+        </div></div>
+      </details>
+
+      <details class="collapsible">
+        <summary><span class="icon">🚰</span> Transistors &amp; Amplification</summary>
+        <div class="card"><div class="viz-grid">
+          <a class="viz-card" href="transistor-valve.html"><div class="vc-emoji">🚰</div><div class="vc-name">Transistor = Valve</div><div class="vc-desc">Small base → big collector.</div></a>
+          <a class="viz-card" href="transistor-amp.html"><div class="vc-emoji">🔊</div><div class="vc-name">Transistor Amp</div><div class="vc-desc">Tiny in → huge out.</div></a>
+          <a class="viz-card" href="hbridge-kids.html"><div class="vc-emoji">🔁</div><div class="vc-name">H-Bridge from Scratch</div><div class="vc-desc">4 switches + motor.</div></a>
+          <a class="viz-card" href="thermal-runaway.html"><div class="vc-emoji">🔥</div><div class="vc-name">Thermal Runaway</div><div class="vc-desc">Positive feedback → boom.</div></a>
+          <a class="viz-card" href="opamp.html"><div class="vc-emoji">⚖️</div><div class="vc-name">Op-Amp Golden Rules</div><div class="vc-desc">Two rules, infinite circuits.</div></a>
+        </div></div>
+      </details>
+
+      <details class="collapsible">
+        <summary><span class="icon">🧠</span> Logic &amp; Digital</summary>
+        <div class="card"><div class="viz-grid">
+          <a class="viz-card" href="logic-gates.html"><div class="vc-emoji">🧠</div><div class="vc-name">Logic Gates</div><div class="vc-desc">AND, OR, NOT, XOR truth tables.</div></a>
+          <a class="viz-card" href="flip-flop.html"><div class="vc-emoji">💾</div><div class="vc-name">Flip-Flop</div><div class="vc-desc">1 bit of RAM.</div></a>
+          <a class="viz-card" href="counter.html"><div class="vc-emoji">🔢</div><div class="vc-name">4-Bit Counter</div><div class="vc-desc">0000 → 1111.</div></a>
+          <a class="viz-card" href="multiplexer.html"><div class="vc-emoji">🎛️</div><div class="vc-name">Multiplexer</div><div class="vc-desc">Selector switch.</div></a>
+          <a class="viz-card" href="555-timer.html"><div class="vc-emoji">🕰️</div><div class="vc-name">555 Timer X-Ray</div><div class="vc-desc">Inside the legendary chip.</div></a>
+        </div></div>
+      </details>
+
+      <details class="collapsible">
+        <summary><span class="icon">🌊</span> Signals &amp; Waves</summary>
+        <div class="card"><div class="viz-grid">
+          <a class="viz-card" href="ac-dc.html"><div class="vc-emoji">📶</div><div class="vc-name">AC vs DC</div><div class="vc-desc">Flat line vs sine → rectify.</div></a>
+          <a class="viz-card" href="voltage-divider.html"><div class="vc-emoji">🔍</div><div class="vc-name">Voltage Divider</div><div class="vc-desc">Two resistors → ratio.</div></a>
+          <a class="viz-card" href="rc-lowpass.html"><div class="vc-emoji">🎚️</div><div class="vc-name">RC Low-Pass</div><div class="vc-desc">Square in, rounded out.</div></a>
+          <a class="viz-card" href="antenna.html"><div class="vc-emoji">📡</div><div class="vc-name">Antenna Radiates</div><div class="vc-desc">EM ripples propagate.</div></a>
+          <a class="viz-card" href="equalizer.html"><div class="vc-emoji">🎚️</div><div class="vc-name">Equalizer</div><div class="vc-desc">5 bands, time + freq.</div></a>
+          <a class="viz-card" href="radio-tuner.html"><div class="vc-emoji">📻</div><div class="vc-name">Radio Tuner</div><div class="vc-desc">LC resonance picks stations.</div></a>
+        </div></div>
+      </details>
+
+      <details class="collapsible">
+        <summary><span class="icon">🔋</span> Power &amp; Safety</summary>
+        <div class="card"><div class="viz-grid">
+          <a class="viz-card" href="fuse.html"><div class="vc-emoji">🔥</div><div class="vc-name">Fuse</div><div class="vc-desc">Sacrifices itself.</div></a>
+          <a class="viz-card" href="cord-drop.html"><div class="vc-emoji">🔌</div><div class="vc-name">Extension Cord Drop</div><div class="vc-desc">Gauge matters!</div></a>
+          <a class="viz-card" href="pigeon-wire.html"><div class="vc-emoji">🐦</div><div class="vc-name">Pigeon on a Wire</div><div class="vc-desc">Why birds don\'t zap.</div></a>
+          <a class="viz-card" href="esd.html"><div class="vc-emoji">⚡</div><div class="vc-name">ESD Zap</div><div class="vc-desc">Silent chip killer.</div></a>
+          <a class="viz-card" href="gnd-bounce.html"><div class="vc-emoji">🧹</div><div class="vc-name">GND Bounce</div><div class="vc-desc">Why decoupling caps exist.</div></a>
+        </div></div>
+      </details>
+
+      <details class="collapsible">
+        <summary><span class="icon">📡</span> Sensors &amp; Actuators</summary>
+        <div class="card"><div class="viz-grid">
+          <a class="viz-card" href="reed-switch.html"><div class="vc-emoji">🧲</div><div class="vc-name">Reed Switch</div><div class="vc-desc">Magnet-triggered.</div></a>
+          <a class="viz-card" href="relay.html"><div class="vc-emoji">🐜</div><div class="vc-name">Relay</div><div class="vc-desc">Small controls big.</div></a>
+          <a class="viz-card" href="thermistor.html"><div class="vc-emoji">🌡️</div><div class="vc-name">Thermistor</div><div class="vc-desc">Temp → voltage.</div></a>
+          <a class="viz-card" href="night-light.html"><div class="vc-emoji">🔆</div><div class="vc-name">Night Light</div><div class="vc-desc">LDR + threshold.</div></a>
+          <a class="viz-card" href="solar.html"><div class="vc-emoji">☀️</div><div class="vc-name">Solar Cell</div><div class="vc-desc">Photons → current.</div></a>
+          <a class="viz-card" href="piezo.html"><div class="vc-emoji">⚡</div><div class="vc-name">Piezo Spark</div><div class="vc-desc">Squeeze → voltage.</div></a>
+        </div></div>
+      </details>
+
+      <details class="collapsible">
+        <summary><span class="icon">🔮</span> Invisible Made Visible</summary>
+        <div class="card"><div class="viz-grid">
+          <a class="viz-card" href="electron-microscope.html"><div class="vc-emoji">⚛️</div><div class="vc-name">Electron Microscope</div><div class="vc-desc">10,000× zoom inside a wire.</div></a>
+          <a class="viz-card" href="signal-speed.html"><div class="vc-emoji">🌊</div><div class="vc-name">Signal at Light Speed</div><div class="vc-desc">Pulse propagation delay.</div></a>
+          <a class="viz-card" href="semiconductor.html"><div class="vc-emoji">🔬</div><div class="vc-name">Conductor/Ins./Semicon.</div><div class="vc-desc">Atoms and carriers.</div></a>
+          <a class="viz-card" href="faraday.html"><div class="vc-emoji">📡</div><div class="vc-name">Faraday Cage</div><div class="vc-desc">Microwave door mystery.</div></a>
+        </div></div>
+      </details>
+
+      <details class="collapsible">
+        <summary><span class="icon">✨</span> Energy that seems like magic</summary>
+        <div class="card"><div class="viz-grid">
+          <a class="viz-card" href="induction.html"><div class="vc-emoji">🧲</div><div class="vc-name">Wireless Induction</div><div class="vc-desc">No wires, yes voltage.</div></a>
+          <a class="viz-card" href="peltier.html"><div class="vc-emoji">🌡️</div><div class="vc-name">Peltier</div><div class="vc-desc">Flip polarity, swap hot/cold.</div></a>
+          <a class="viz-card" href="electrolysis.html"><div class="vc-emoji">🧪</div><div class="vc-name">Electrolysis</div><div class="vc-desc">Split water 2:1.</div></a>
+          <a class="viz-card" href="lemon-battery.html"><div class="vc-emoji">🍋</div><div class="vc-name">Lemon Battery</div><div class="vc-desc">Metals + juice.</div></a>
+          <a class="viz-card" href="shark.html"><div class="vc-emoji">🦈</div><div class="vc-name">Shark Electroreception</div><div class="vc-desc">Biology\'s voltmeter.</div></a>
+        </div></div>
+      </details>
+
+      <details class="collapsible">
+        <summary><span class="icon">🎲</span> Noise, Randomness, Systems</summary>
+        <div class="card"><div class="viz-grid">
+          <a class="viz-card" href="johnson-noise.html"><div class="vc-emoji">🔊</div><div class="vc-name">Johnson Noise</div><div class="vc-desc">Heat = electrical noise.</div></a>
+          <a class="viz-card" href="hw-rng.html"><div class="vc-emoji">🎲</div><div class="vc-name">Hardware RNG</div><div class="vc-desc">True random bits.</div></a>
+          <a class="viz-card" href="oscillator.html"><div class="vc-emoji">🌀</div><div class="vc-name">Oscillator From Thin Air</div><div class="vc-desc">Bifurcation to beating.</div></a>
+          <a class="viz-card" href="feedback.html"><div class="vc-emoji">🧬</div><div class="vc-name">Feedback + vs −</div><div class="vc-desc">One wire decides everything.</div></a>
+          <a class="viz-card" href="pll.html"><div class="vc-emoji">🔒</div><div class="vc-name">PLL Lock</div><div class="vc-desc">VCO chases reference.</div></a>
+        </div></div>
+      </details>
+
+      <details class="collapsible">
+        <summary><span class="icon">📟</span> Microcontrollers — bridge to code</summary>
+        <div class="card"><div class="viz-grid">
+          <a class="viz-card" href="adc.html"><div class="vc-emoji">📟</div><div class="vc-name">ADC Staircase</div><div class="vc-desc">Sampling + bits trade-off.</div></a>
+          <a class="viz-card" href="dac.html"><div class="vc-emoji">🎼</div><div class="vc-name">DAC</div><div class="vc-desc">Numbers → wave → sound.</div></a>
+          <a class="viz-card" href="interrupt-poll.html"><div class="vc-emoji">⏰</div><div class="vc-name">Interrupt vs Polling</div><div class="vc-desc">Race for the button.</div></a>
+          <a class="viz-card" href="debounce-fsm.html"><div class="vc-emoji">🔘</div><div class="vc-name">Debounce FSM</div><div class="vc-desc">4 strategies, winner clear.</div></a>
+          <a class="viz-card" href="multi-thread.html"><div class="vc-emoji">🧵</div><div class="vc-name">Multitask Lite</div><div class="vc-desc">Cooperative scheduling.</div></a>
+          <a class="viz-card" href="brain-circuit.html"><div class="vc-emoji">🧠</div><div class="vc-name">Brain = Circuit</div><div class="vc-desc">Neurons as Schmitt triggers.</div></a>
+        </div></div>
+      </details>
+
+      <details class="collapsible">
+        <summary><span class="icon">🔧</span> Craft, Debug, Meta</summary>
+        <div class="card"><div class="viz-grid">
+          <a class="viz-card" href="solder.html"><div class="vc-emoji">🔨</div><div class="vc-name">Solder Joint Rater</div><div class="vc-desc">Cold, good, blobby, bridge.</div></a>
+          <a class="viz-card" href="multimeter.html"><div class="vc-emoji">📏</div><div class="vc-name">Multimeter School</div><div class="vc-desc">V / A / Ω modes.</div></a>
+          <a class="viz-card" href="probe.html"><div class="vc-emoji">🔬</div><div class="vc-name">Probe the Probe</div><div class="vc-desc">Compensate your scope probe.</div></a>
+          <a class="viz-card" href="schem-breadboard.html"><div class="vc-emoji">📐</div><div class="vc-name">Schematic ↔ Breadboard</div><div class="vc-desc">Two views, one circuit.</div></a>
+          <a class="viz-card" href="read-schem.html"><div class="vc-emoji">📜</div><div class="vc-name">Read This Schematic</div><div class="vc-desc">Learn every symbol.</div></a>
+          <a class="viz-card" href="fail-lab.html"><div class="vc-emoji">🔧</div><div class="vc-name">Fail Lab</div><div class="vc-desc">Debug like an engineer.</div></a>
+        </div></div>
+      </details>
+
+      <details class="collapsible">
+        <summary><span class="icon">🚀</span> Other galleries</summary>
+        <div class="card"><div class="viz-grid">
+          <a class="viz-card" href="../maker-viz/index.html"><div class="vc-emoji">🛠️</div><div class="vc-name">Maker Viz →</div><div class="vc-desc">17 sensors/motors vizzes.</div></a>
+          <a class="viz-card" href="../drone-viz/index.html"><div class="vc-emoji">🚁</div><div class="vc-name">Drone Viz →</div><div class="vc-desc">32 drone subsystems.</div></a>
+        </div></div>
+      </details>
+    </div>
+
+    <footer class="app-footer">
+      <span class="footer-text">powered by <a href="https://workshop-diy.org" target="_blank" rel="noopener">workshop-diy.org</a></span>
+      <span class="hijri-date" id="hijriDate"></span>
+    </footer>
+    <div class="deco-band bottom-band" aria-hidden="true"></div>
+  </div>
+
+  <canvas id="matrixCanvas" class="matrix-canvas"></canvas>
+  <div id="debugPanel" class="debug-panel"><span id="debugFps">0 FPS</span><span id="debugMem">0 MB</span></div>
+
+  <div class="sidebar-overlay" id="helpOverlay"></div>
+  <aside class="sidebar sidebar-left" id="helpPanel" aria-label="Help" role="dialog" aria-modal="true">
+    <div class="sidebar-header"><span class="sidebar-title">❓ Help</span><button id="helpCloseBtn" class="btn-icon-only" aria-label="Close">✕</button></div>
+    <div class="help-tabs"><button class="help-tab active" data-tab="faq">FAQ</button><button class="help-tab" data-tab="howto">How-To</button><button class="help-tab" data-tab="wiki">Wiki</button></div>
+    <div class="sidebar-body">
+      <div class="help-content active" id="helpFaq">
+        <details class="help-item"><summary>What is this?</summary><p>70 phase-stepped electronics visualizers. Each shows code or physics executing one phase at a time.</p></details>
+        <details class="help-item"><summary>Where do I start?</summary><p>The ⭐ Top 5. Ohm\'s Water Pipe is the universal foundation.</p></details>
+        <details class="help-item"><summary>For what age?</summary><p>Works 8–14 with adult help, 14+ solo. Each viz is self-contained.</p></details>
+        <details class="help-item"><summary>Is my data private?</summary><p>Yes. All runs locally. No tracking.</p></details>
+      </div>
+      <div class="help-content" id="helpHowto">
+        <div class="help-step"><span class="help-step-num">1</span><p>Pick a card from the grid.</p></div>
+        <div class="help-step"><span class="help-step-num">2</span><p>Press STEP (manual) or PLAY (auto).</p></div>
+        <div class="help-step"><span class="help-step-num">3</span><p>Slide per-viz sliders to change inputs.</p></div>
+        <div class="help-step"><span class="help-step-num">4</span><p>Slower speed = easier to follow the phases.</p></div>
+      </div>
+      <div class="help-content" id="helpWiki">
+        <div class="wiki-entry"><h3>⚡ Engine</h3><p>All vizzes share ~200-line <code>MakerViz.create()</code>: state + phases + stage + code lines.</p></div>
+        <div class="wiki-entry"><h3>🚀 Sister galleries</h3><p><a href="../maker-viz/index.html">Maker Viz</a> · <a href="../drone-viz/index.html">Drone Viz</a></p></div>
+        <div class="wiki-entry"><h3>🕹️ Easter eggs</h3><p>Konami code (↑↑↓↓←→←→BA) → retro CRT theme.</p></div>
+      </div>
+    </div>
+    <div class="sidebar-footer"><span>Workshop DIY</span><span class="badge"><strong>v1.2</strong></span></div>
+  </aside>
+
+  <div class="sidebar-overlay" id="settingsOverlay"></div>
+  <aside class="sidebar" id="settingsPanel" aria-label="Settings" role="dialog" aria-modal="true">
+    <div class="sidebar-header"><span class="sidebar-title">⚙️ Settings</span><button id="settingsCloseBtn" class="btn-icon-only" aria-label="Close">✕</button></div>
+    <div class="sidebar-body">
+      <div class="sidebar-group"><label class="sidebar-label">Language</label><select id="langSelect" class="sidebar-select" aria-label="Language"><option value="en" selected>🇬🇧 EN</option><option value="fr">🇫🇷 FR</option><option value="ar">🇩🇿 عربي</option></select></div>
+      <div class="sidebar-group"><label class="sidebar-label">Theme</label><select id="themeSelect" class="sidebar-select" aria-label="Theme"><option value="robot" selected>Robot</option><option value="jungle">Jungle</option><option value="space">Space</option><option value="mosque-gold">Mosque</option><option value="zellige">Zellige</option><option value="andalus">Andalus</option><option value="riad">Riad</option><option value="medina">Medina</option></select></div>
+      <div class="sidebar-group"><label class="toggle-ctrl"><input type="checkbox" id="soundToggle" class="checkbox-ctrl" /><span>🔊 Sound effects</span></label></div>
+      <div class="sidebar-group"><button id="whisperBtn" class="btn-sm" style="width:100%"><span class="btn-icon">🎤</span> Whisper mode</button></div>
+      <div class="sidebar-group"><button id="breathingBtn" class="btn-sm" style="width:100%"><span class="btn-icon">🫁</span> Breathing guide</button>
+        <div class="dhikr-display" id="dhikrDisplay" style="display:none"><span class="dhikr-label">سبحان الله</span><span class="dhikr-count" id="dhikrCounter">0</span><button id="dhikrBtn" class="btn-sm primary">Tap</button></div>
+      </div>
+      <div class="sidebar-group"><button id="musicBtn" class="btn-sm" style="width:100%"><span class="btn-icon">🎵</span> Music reactive</button></div>
+    </div>
+    <div class="sidebar-footer"><span>Workshop DIY</span><span class="badge"><strong>v1.2</strong></span></div>
+  </aside>
+
+  <aside class="sidebar" id="logPanel" aria-label="Activity Log">
+    <div class="resize-handle" id="logResizeHandle"></div>
+    <div class="sidebar-header"><span class="sidebar-title">📜 Activity Log</span><div class="log-controls"><button id="clearLogBtn" class="btn-sm"><span class="btn-icon">🧹</span>Clear</button><button id="copyLogBtn" class="btn-sm"><span class="btn-icon">📋</span>Copy</button><button id="exportLogBtn" class="btn-sm"><span class="btn-icon">💾</span>Export</button><button id="logCloseBtn" class="btn-icon-only" aria-label="Close">✕</button></div></div>
+    <div class="log-filters" id="logFilters"><button class="log-filter active" data-filter="all">All</button><button class="log-filter" data-filter="info">Info</button><button class="log-filter" data-filter="success">✓</button><button class="log-filter" data-filter="error">✗</button><button class="log-filter" data-filter="tx">TX</button><button class="log-filter" data-filter="rx">RX</button></div>
+    <div class="sidebar-body log-body"><div class="log" id="logContainer" aria-live="polite"></div></div>
+    <div class="sidebar-footer"><span>Events &amp; messages</span><span class="badge"><strong>v1.2</strong></span></div>
+  </aside>
+
+  <div id="toastIndicator" class="toast-indicator"><div class="toast-inner"><div class="spinner"></div><div id="toastMessage" class="toast-text">Working…</div></div></div>
+  <script src="wd-script.js"></script>
+</body>
+</html>

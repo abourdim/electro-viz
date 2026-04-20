@@ -1,0 +1,41 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Lemon battery</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+const PAIRS = [
+  { a:'Zn', b:'Cu', V: 1.1 },
+  { a:'Zn', b:'Fe', V: 0.3 },
+  { a:'Al', b:'Cu', V: 2.0 },
+  { a:'Mg', b:'Cu', V: 2.7 },
+  { a:'Ag', b:'Cu', V: 0.1 }
+];
+const JUICE = [ {name:'lemon', mult:1.0}, {name:'salt water', mult:0.8}, {name:'vinegar', mult:0.9}, {name:'pure water', mult:0.1} ];
+function stage(s){
+  const p = PAIRS[s.pairIdx];
+  const j = JUICE[s.juiceIdx];
+  const V = p.V * j.mult;
+  return `<svg viewBox="0 0 540 260">
+    <rect width="540" height="260" fill="#F4E8CB"/>
+    <g transform="translate(200,100)">
+      <ellipse cx="70" cy="70" rx="80" ry="60" fill="#FFEB3B" stroke="#B8860B" stroke-width="3"/>
+      <text x="70" y="78" text-anchor="middle" font-size="13" font-weight="bold" fill="#264653">${j.name}</text>
+      <rect x="20" y="-10" width="20" height="80" fill="#C0C0C0" stroke="#264653" stroke-width="2"/>
+      <text x="30" y="-16" text-anchor="middle" font-size="11" font-weight="bold" fill="#264653">${p.a}</text>
+      <rect x="100" y="-10" width="20" height="80" fill="#CC8833" stroke="#264653" stroke-width="2"/>
+      <text x="110" y="-16" text-anchor="middle" font-size="11" font-weight="bold" fill="#264653">${p.b}</text>
+    </g>
+    <g transform="translate(400,140)">
+      <rect width="80" height="40" fill="#FFF" stroke="#264653" stroke-width="2" rx="4"/>
+      <text x="40" y="14" text-anchor="middle" font-size="10">V</text>
+      <text x="40" y="32" text-anchor="middle" font-size="14" font-weight="bold" fill="#E63946">${V.toFixed(2)}V</text>
+    </g>
+    <text x="270" y="240" text-anchor="middle" font-size="11" fill="#264653">${p.a} loses electrons → flow through wire to ${p.b} through ${j.name}</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🍋 Lemon Battery',subtitle:'Two metals + juice = voltage!',
+  vars:{V:{label:'⚡ V',value:0,color:'#E63946'}},
+  extras:[{kind:'slider',id:'pS',label:'Metal pair',min:0,max:4,value:0,step:1,onInput(v,s){s.pairIdx=v;}},{kind:'slider',id:'jS',label:'Electrolyte',min:0,max:3,value:0,step:1,onInput(v,s){s.juiceIdx=v;}}],
+  lines:['Metal A + ionic liquid → loses electrons','Metal B in same liquid → wants them','Connect wire: electrons flow A → B','Voltage depends on metals & juice'],
+  phases:['pick','react','flow','measure'],onInit(s){s.pairIdx=0;s.juiceIdx=0;s.V=0;},onReset(s){s.pairIdx=0;s.juiceIdx=0;},stage,
+  run(p,s,ui){const n=['pick','react','flow','measure'].indexOf(p)+1;ui.activeLine(n);if(p==='measure'){const v=PAIRS[s.pairIdx].V*JUICE[s.juiceIdx].mult;s.V=v;ui.setVar('V',v,{display:v.toFixed(2)+'V',flash:true});}}
+});
+</script></body></html>

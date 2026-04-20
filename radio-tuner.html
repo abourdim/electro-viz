@@ -1,0 +1,40 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Radio tuner</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+const STATIONS = [
+  { f: 540,  name:'🎺 Jazz FM' },
+  { f: 780,  name:'📻 Talk 78' },
+  { f: 950,  name:'🎶 Hits 95' },
+  { f: 1200, name:'⚽ Sports 1200' },
+  { f: 1450, name:'📰 News 1450' }
+];
+function stage(s){
+  const W=480;
+  const resp = f => Math.exp(-Math.pow((f - s.tune)/30, 2));
+  const best = STATIONS.reduce((b,st) => resp(st.f) > resp(b.f) ? st : b, STATIONS[0]);
+  const tuned = resp(best.f) > 0.5;
+  return `<svg viewBox="0 0 540 240">
+    <rect width="540" height="240" fill="#F4E8CB"/>
+    <rect x="20" y="30" width="${W+20}" height="100" fill="#0A0F1E" stroke="#FFD700" stroke-width="3" rx="8"/>
+    ${STATIONS.map(st => {
+      const x = 30 + ((st.f-500)/1000)*W;
+      const r = resp(st.f);
+      return `<g>
+        <circle cx="${x}" cy="80" r="${5+r*20}" fill="${r>0.5?'#FFD700':'#888'}" opacity="${r}"/>
+        <text x="${x}" y="50" text-anchor="middle" font-size="10" fill="${r>0.5?'#FFD700':'#666'}" font-weight="bold">${st.name}</text>
+        <text x="${x}" y="120" text-anchor="middle" font-size="9" fill="#888">${st.f}</text>
+      </g>`;
+    }).join('')}
+    <line x1="${30+((s.tune-500)/1000)*W}" y1="30" x2="${30+((s.tune-500)/1000)*W}" y2="130" stroke="#E63946" stroke-width="2"/>
+    <text x="270" y="170" text-anchor="middle" font-size="13" font-weight="bold" fill="${tuned?'#40BF4A':'#264653'}">tuning ${s.tune} kHz · ${tuned?`🎧 LOCKED ON ${best.name}`:'🔊 just static'}</text>
+    <text x="270" y="210" text-anchor="middle" font-size="11" fill="#264653">LC tank resonates at one frequency · narrow peak = station select</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'📻 Radio Tuner',subtitle:'LC resonance picks one station!',
+  vars:{tune:{label:'🎛️ tune',value:950,color:'#FF6B35',note:'kHz'}},
+  extras:[{kind:'slider',id:'tS',label:'Tune (kHz)',min:500,max:1500,value:950,step:10,onInput(v,s){s.tune=v;}}],
+  lines:['Antenna picks up ALL stations mixed','LC tank resonates at one frequency','Off-resonance signals rejected','Output: one clean station'],
+  phases:['all','resonate','reject','listen'],onInit(s){s.tune=950;},onReset(s){s.tune=950;},stage,
+  run(p,s,ui){const n=['all','resonate','reject','listen'].indexOf(p)+1;ui.activeLine(n);}
+});
+</script></body></html>

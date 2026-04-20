@@ -1,0 +1,31 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Peltier</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const hotSide = s.reverse ? 'right' : 'left';
+  const leftT = s.reverse ? -20 : 40;
+  const rightT = s.reverse ? 40 : -20;
+  return `<svg viewBox="0 0 540 240">
+    <rect width="540" height="240" fill="#F4E8CB"/>
+    <g transform="translate(160,70)">
+      <rect width="220" height="80" fill="#DDD" stroke="#264653" stroke-width="3"/>
+      <rect width="110" height="80" fill="${leftT>0?'#E63946':'#457B9D'}" opacity="0.5"/>
+      <rect x="110" width="110" height="80" fill="${rightT>0?'#E63946':'#457B9D'}" opacity="0.5"/>
+      <text x="55" y="46" text-anchor="middle" font-size="16" font-weight="bold" fill="#FFF">${leftT>0?'🔥':'🧊'} ${leftT>0?'+':''}${leftT}°</text>
+      <text x="165" y="46" text-anchor="middle" font-size="16" font-weight="bold" fill="#FFF">${rightT>0?'🔥':'🧊'} ${rightT>0?'+':''}${rightT}°</text>
+    </g>
+    <g transform="translate(200,180)">
+      <rect width="140" height="30" fill="#FFD700" stroke="#264653" stroke-width="2"/>
+      <text x="70" y="20" text-anchor="middle" font-size="12" font-weight="bold" fill="#264653">DC ${s.reverse?'← reversed':'→'}</text>
+    </g>
+    <text x="270" y="40" text-anchor="middle" font-size="13" font-weight="bold" fill="#264653">flip the polarity → hot/cold sides swap!</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🌡️ Peltier Module',subtitle:'Electricity → heat pump!',
+  vars:{reverse:{label:'🔄 polarity',value:'fwd',color:'#FFD700'}},
+  extras:[{kind:'toggle',id:'rT',label:'Reverse polarity',value:false,onToggle(v,s){s.reverse=v;}}],
+  lines:['DC flows through junction','Seebeck/Peltier effect','One side pumps heat to other','Flip polarity → hot/cold swap'],
+  phases:['dc','pump','move','flip'],onInit(s){s.reverse=false;},onReset(s){s.reverse=false;},stage,
+  run(p,s,ui){const n=['dc','pump','move','flip'].indexOf(p)+1;ui.activeLine(n);ui.setVar('reverse',s.reverse?'REV':'fwd',{display:s.reverse?'REV':'fwd'});}
+});
+</script></body></html>

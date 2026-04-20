@@ -1,0 +1,32 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Capacitor Bucket</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const fill = Math.max(0, Math.min(1, s.Q / s.C));
+  const h = 140 * fill;
+  const bucketW = 80 + s.C*10;
+  return `<svg viewBox="0 0 540 260">
+    <rect width="540" height="260" fill="#B0E0E6"/>
+    <g transform="translate(60,60)">
+      <rect width="40" height="40" fill="#FFD700" stroke="#264653" stroke-width="2"/><text x="20" y="25" text-anchor="middle" font-size="10">${s.V}V</text>
+    </g>
+    <g>
+      <rect x="${270 - bucketW/2}" y="${60 + (140 - h)}" width="${bucketW}" height="${h}" fill="#457B9D"/>
+      <rect x="${270 - bucketW/2}" y="60" width="${bucketW}" height="140" fill="none" stroke="#264653" stroke-width="3"/>
+      <text x="270" y="50" text-anchor="middle" font-size="12" font-weight="bold" fill="#264653">capacitor · C = ${s.C}</text>
+      <text x="270" y="225" text-anchor="middle" font-size="11" fill="#264653">Q = ${s.Q.toFixed(1)} · V = ${(s.Q/s.C).toFixed(2)}</text>
+    </g>
+    <text x="270" y="250" text-anchor="middle" font-size="11" font-weight="bold" fill="#264653">τ = R × C = ${(s.R*s.C).toFixed(1)}s · ${s.charging?'charging':'discharging'}</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🪣 Capacitor = Bucket',subtitle:'Cap fills and empties on exponential curve',
+  vars:{Q:{label:'💧 Q',value:0,color:'#457B9D'},V:{label:'V cap',value:0,color:'#FFD700'}},
+  extras:[{kind:'slider',id:'rS',label:'R Ω',min:1,max:50,value:10,step:1,onInput(v,s){s.R=v;}},{kind:'slider',id:'cS',label:'C',min:1,max:20,value:5,step:1,onInput(v,s){s.C=v;}},{kind:'toggle',id:'cT',label:'🔌 Charge',value:true,onToggle(v,s){s.charging=v;}}],
+  lines:['Vin pushes charge onto cap','Through R (tap narrows)','exponential: τ = R × C','reverse switch → discharge'],
+  phases:['push','flow','curve','decide'],
+  onInit(s){s.V=5;s.R=10;s.C=5;s.Q=0;s.charging=true;},onReset(s){s.Q=0;s.charging=true;},stage,
+  run(phase,s,ui){const n=['push','flow','curve','decide'].indexOf(phase)+1;ui.activeLine(n);
+    if(phase==='flow'){const target=s.charging?s.V*s.C:0;const rate=1/Math.max(1,s.R*s.C);s.Q+=(target-s.Q)*Math.min(1,rate*1.5);ui.setVar('Q',s.Q,{display:s.Q.toFixed(1),flash:true});ui.setVar('V',s.Q/s.C,{display:(s.Q/s.C).toFixed(2)});}
+  }
+});
+</script></body></html>

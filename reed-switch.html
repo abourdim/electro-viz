@@ -1,0 +1,35 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Reed switch</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const closed = s.closed;
+  const magnetX = 60 + s.dist*3;
+  return `<svg viewBox="0 0 540 240">
+    <rect width="540" height="240" fill="#F4E8CB"/>
+    <g transform="translate(${magnetX},90)">
+      <rect width="40" height="50" fill="#E63946" stroke="#264653" stroke-width="2"/>
+      <text x="20" y="24" text-anchor="middle" font-size="10" font-weight="bold" fill="#FFF">N</text>
+      <text x="20" y="44" text-anchor="middle" font-size="10" font-weight="bold" fill="#FFF">S</text>
+      <text x="20" y="70" text-anchor="middle" font-size="11" font-weight="bold" fill="#264653">magnet</text>
+    </g>
+    <g transform="translate(280,110)">
+      <rect width="140" height="40" fill="#FFF" stroke="#264653" stroke-width="3" rx="16"/>
+      <line x1="15" y1="20" x2="55" y2="${closed?20:12}" stroke="#888" stroke-width="3" stroke-linecap="round"/>
+      <line x1="125" y1="20" x2="85" y2="${closed?20:12}" stroke="#888" stroke-width="3" stroke-linecap="round"/>
+      <text x="70" y="60" text-anchor="middle" font-size="11" font-weight="bold" fill="#264653">reed switch</text>
+    </g>
+    <g transform="translate(450,110)">
+      <circle r="20" fill="${closed?'#FFD700':'#333'}" stroke="#264653" stroke-width="3"/>
+      <text y="34" text-anchor="middle" font-size="11" font-weight="bold">LED</text>
+    </g>
+    <text x="270" y="210" text-anchor="middle" font-size="12" font-weight="bold" fill="${closed?'#40BF4A':'#264653'}">distance=${s.dist}cm · ${closed?'🧲 magnet close → contacts snap CLOSED':'⚪ no magnet — contacts open'}</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🧲 Reed Switch',subtitle:'Magnet triggers the switch — no touching!',
+  vars:{dist:{label:'📏 distance',value:40,color:'#E63946'},closed:{label:'🔘 closed',value:'no',color:'#40BF4A'}},
+  extras:[{kind:'slider',id:'dS',label:'Magnet distance (cm)',min:0,max:60,value:40,step:1,onInput(v,s){s.dist=v;}}],
+  lines:['Magnet nears the glass tube','Field magnetizes reed strips','Strips snap toward each other','Contact closes — LED lights'],
+  phases:['approach','field','snap','light'],onInit(s){s.dist=40;s.closed=false;},onReset(s){s.dist=40;s.closed=false;},stage,
+  run(p,s,ui){const n=['approach','field','snap','light'].indexOf(p)+1;ui.activeLine(n);if(p==='snap'){s.closed=s.dist<15;ui.setVar('closed',s.closed?'yes':'no',{display:s.closed?'yes':'no',flash:true});}}
+});
+</script></body></html>

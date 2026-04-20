@@ -1,0 +1,36 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Interrupt vs polling</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  return `<svg viewBox="0 0 540 260">
+    <rect width="540" height="260" fill="#F4E8CB"/>
+    <g transform="translate(30,30)">
+      <rect width="220" height="100" fill="#E63946" stroke="#264653" stroke-width="3" rx="8"/>
+      <text x="110" y="22" text-anchor="middle" font-size="13" font-weight="bold" fill="#FFF">POLLING CPU</text>
+      <text x="110" y="50" text-anchor="middle" font-size="11" fill="#FFF">loop: check button → work → check...</text>
+      <text x="110" y="72" text-anchor="middle" font-size="14" font-weight="bold" fill="#FFD700">detected: ${s.pollDetected}/${s.pressed}</text>
+      <text x="110" y="90" text-anchor="middle" font-size="11" fill="#FFF">MISSED: ${s.pressed - s.pollDetected}</text>
+    </g>
+    <g transform="translate(290,30)">
+      <rect width="220" height="100" fill="#40BF4A" stroke="#264653" stroke-width="3" rx="8"/>
+      <text x="110" y="22" text-anchor="middle" font-size="13" font-weight="bold" fill="#FFF">INTERRUPT CPU</text>
+      <text x="110" y="50" text-anchor="middle" font-size="11" fill="#FFF">work work work · interrupt! · work</text>
+      <text x="110" y="72" text-anchor="middle" font-size="14" font-weight="bold" fill="#FFD700">detected: ${s.irqDetected}/${s.pressed}</text>
+      <text x="110" y="90" text-anchor="middle" font-size="11" fill="#FFF">never misses</text>
+    </g>
+    <g transform="translate(220,160)">
+      <circle r="30" fill="#FFD700" stroke="#264653" stroke-width="3"/>
+      <text y="6" text-anchor="middle" font-size="16">🔘</text>
+      <text y="55" text-anchor="middle" font-size="11" font-weight="bold" fill="#264653">presses: ${s.pressed}</text>
+    </g>
+    <text x="270" y="245" text-anchor="middle" font-size="12" font-weight="bold" fill="#264653">interrupt never misses · polling misses when loop is slow</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'⏰ Interrupt vs Polling',subtitle:'Which CPU catches every press?',
+  vars:{pressed:{label:'🔘 presses',value:0,color:'#FFD700'},missed:{label:'😵 missed',value:0,color:'#E63946'}},
+  extras:[{kind:'slider',id:'wS',label:'CPU work ms',min:10,max:300,value:100,step:10,onInput(v,s){s.workMs=v;}}],
+  lines:['Button press is a sudden event','Polling CPU: checks every loop','Interrupt CPU: hardware forces attention','Fast press during busy poll → missed'],
+  phases:['press','poll','irq','compare'],onInit(s){s.workMs=100;s.pressed=0;s.pollDetected=0;s.irqDetected=0;},onReset(s){s.pressed=0;s.pollDetected=0;s.irqDetected=0;},stage,
+  run(p,s,ui){const n=['press','poll','irq','compare'].indexOf(p)+1;ui.activeLine(n);if(p==='press'){s.pressed++;ui.setVar('pressed',s.pressed,{flash:true});}else if(p==='poll'){if(s.workMs<150||Math.random()>0.5)s.pollDetected++;}else if(p==='irq'){s.irqDetected=s.pressed;}else if(p==='compare'){ui.setVar('missed',s.pressed-s.pollDetected,{});}}
+});
+</script></body></html>

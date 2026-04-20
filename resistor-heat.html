@@ -1,0 +1,35 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Resistor Heat</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const P = s.I * s.I * s.R;
+  const temp = Math.min(1000, P * 50);
+  const glow = temp > 400 ? Math.min(1,(temp-400)/500) : 0;
+  const smoke = temp > 700;
+  const dead = s.smoked;
+  return `<svg viewBox="0 0 540 260">
+    <rect width="540" height="260" fill="#F4E8CB"/>
+    <g transform="translate(270,140)">
+      <rect x="-60" y="-25" width="120" height="50" rx="8" fill="${dead?'#222':(glow>0?`rgb(255,${Math.max(50,255-glow*180)},${Math.max(0,100-glow*100)})`:'#BA8C63')}" stroke="#264653" stroke-width="3"/>
+      <text y="6" text-anchor="middle" font-size="14" font-weight="bold" fill="#FFF">${s.R}Ω ${s.rated}W</text>
+    </g>
+    ${smoke && !dead ? Array.from({length:6},(_,i)=>`<circle cx="${270 + (i-3)*15}" cy="${90 - i*10 - (Date.now()/50 + i*20)%40}" r="${5+i}" fill="#AAA" opacity="0.5"/>`).join(''):''}
+    <g transform="translate(20,30)">
+      <text font-size="12" font-weight="bold" fill="#264653">power dissipated: ${P.toFixed(2)} W</text>
+      <text y="18" font-size="12" font-weight="bold" fill="${temp>700?'#E63946':'#264653'}">temperature: ${Math.round(temp)}°C</text>
+      <text y="38" font-size="12" font-weight="bold" fill="${P>s.rated?'#E63946':'#40BF4A'}">${P>s.rated?'⚠️ OVERLOAD!':'✅ OK'}</text>
+    </g>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🔥 Resistor Heat',subtitle:'Power = I²R turns into heat. Pick the right wattage!',
+  vars:{I:{label:'I',value:1,color:'#E63946'},P:{label:'P',value:0,color:'#FF6B35'}},
+  extras:[{kind:'slider',id:'iS',label:'Current A',min:0,max:5,value:1,step:0.1,onInput(v,s){s.I=v;}},{kind:'slider',id:'rS',label:'R Ω',min:1,max:100,value:10,step:1,onInput(v,s){s.R=v;}},{kind:'slider',id:'wS',label:'Rated W',min:0.25,max:10,value:1,step:0.25,onInput(v,s){s.rated=v;}}],
+  lines:['READ current × resistance','COMPUTE P = I² × R','Heat accumulates','IF P > rating → FAIL'],
+  phases:['read','power','heat','check'],
+  onInit(s){s.I=1;s.R=10;s.rated=1;s.smoked=false;},onReset(s){s.I=1;s.R=10;s.rated=1;s.smoked=false;},stage,
+  run(phase,s,ui){const n=['read','power','heat','check'].indexOf(phase)+1;ui.activeLine(n);
+    if(phase==='power'){s.P=s.I*s.I*s.R;ui.setVar('P',s.P,{display:s.P.toFixed(2)+'W',flash:true});}
+    else if(phase==='check'){if(s.P>s.rated*2){s.smoked=true;ui.narrate('💨 SMOKE!');ui.check(4,true);}else if(s.P>s.rated)ui.narrate('⚠️ too hot');else ui.narrate('✅ within rating');}
+  }
+});
+</script></body></html>

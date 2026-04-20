@@ -1,0 +1,35 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Relay</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const energized = s.energized;
+  return `<svg viewBox="0 0 540 240">
+    <rect width="540" height="240" fill="#F4E8CB"/>
+    <g transform="translate(40,90)"><rect width="60" height="50" fill="#A8DADC" stroke="#264653" stroke-width="3"/><text x="30" y="22" text-anchor="middle" font-size="10" font-weight="bold">low V</text><text x="30" y="40" text-anchor="middle" font-size="12" font-weight="bold">5V</text></g>
+    <g transform="translate(140,100)">
+      <rect width="80" height="30" fill="${energized?'#FFD700':'#DDD'}" stroke="#264653" stroke-width="2" rx="4"/>
+      <text x="40" y="20" text-anchor="middle" font-size="11" font-weight="bold">coil</text>
+      ${energized?Array.from({length:4},(_,i)=>`<circle cx="${10+i*20}" cy="${-10-i*2}" r="4" fill="none" stroke="#FFD700" stroke-width="2"/>`).join(''):''}
+    </g>
+    <g transform="translate(260,90)">
+      <rect width="40" height="60" fill="#333" stroke="#264653" stroke-width="2"/>
+      <rect x="10" y="15" width="20" height="${energized?35:15}" fill="#888"/>
+      <text x="20" y="80" text-anchor="middle" font-size="10" font-weight="bold">armature</text>
+    </g>
+    <g transform="translate(340,90)">
+      <line x1="0" y1="${energized?10:0}" x2="40" y2="${energized?10:-5}" stroke="#E63946" stroke-width="5"/>
+      <rect x="0" y="30" width="60" height="30" fill="${energized?'#E63946':'#DDD'}" stroke="#264653" stroke-width="2"/>
+      <text x="30" y="48" text-anchor="middle" font-size="11" font-weight="bold" fill="${energized?'#FFF':'#264653'}">${energized?'120V':'off'}</text>
+    </g>
+    <g transform="translate(440,90)"><rect width="60" height="50" fill="${energized?'#FFD700':'#666'}" stroke="#264653" stroke-width="3"/><text x="30" y="32" text-anchor="middle" font-size="14">💡</text></g>
+    <text x="270" y="215" text-anchor="middle" font-size="12" font-weight="bold" fill="#264653">${energized?'🧲 coil magnetizes → armature pulls → big contacts close':'low-side OFF → armature relaxed → contacts open'}</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🐜 Relay — Small Controls Big',subtitle:'5V coil switches 120V contact!',
+  vars:{energized:{label:'⚡ coil',value:'off',color:'#FFD700'}},
+  extras:[{kind:'toggle',id:'eT',label:'5V Coil',value:false,onToggle(v,s){s.energized=v;}}],
+  lines:['5V signal on coil','Coil becomes electromagnet','Iron armature pulled in','Big contacts close → high-V load powers'],
+  phases:['signal','magnet','pull','close'],onInit(s){s.energized=false;},onReset(s){s.energized=false;},stage,
+  run(p,s,ui){const n=['signal','magnet','pull','close'].indexOf(p)+1;ui.activeLine(n);ui.setVar('energized',s.energized?'ON':'off',{display:s.energized?'ON':'off'});}
+});
+</script></body></html>

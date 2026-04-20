@@ -1,0 +1,30 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Electron parade</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const N = 30;
+  const speed = s.switchOn ? (s.V / Math.max(1, s.R)) * 20 : 0;
+  const dots = Array.from({length:N},(_,i)=>{
+    const p = ((i/N)*500 + s.t * speed) % 500;
+    return `<circle cx="${20+p}" cy="140" r="5" fill="#FFD700" stroke="#264653" stroke-width="1"/>`;
+  }).join('');
+  return `<svg viewBox="0 0 540 240">
+    <rect width="540" height="240" fill="#F4E8CB"/>
+    <rect x="20" y="130" width="500" height="20" fill="#333"/>
+    ${dots}
+    <g transform="translate(20,100)"><rect width="50" height="60" fill="${s.switchOn?'#40BF4A':'#E63946'}" stroke="#264653" stroke-width="2"/><text x="25" y="35" text-anchor="middle" font-size="11" font-weight="bold" fill="#FFF">${s.switchOn?'ON':'OFF'}</text></g>
+    ${s.R > 5 ? `<rect x="240" y="125" width="60" height="30" fill="#666" stroke="#264653" stroke-width="2"/><text x="270" y="145" text-anchor="middle" font-size="11" font-weight="bold" fill="#FFF">R</text>`:''}
+    <text x="270" y="200" text-anchor="middle" font-size="12" font-weight="bold" fill="#264653">speed = current · more V = faster · more R = slower</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'⚛️ Electron Parade',subtitle:'Watch charges actually move!',
+  vars:{V:{label:'🔋 V',value:9,color:'#FFD700'},R:{label:'🔧 R',value:3,color:'#666'},I:{label:'💧 I',value:0,color:'#E63946'}},
+  extras:[{kind:'slider',id:'vS',label:'V',min:0,max:20,value:9,step:1,onInput(v,s){s.V=v;}},{kind:'slider',id:'rS',label:'R',min:1,max:20,value:3,step:1,onInput(v,s){s.R=v;}},{kind:'toggle',id:'sW',label:'🔘 Switch',value:true,onToggle(v,s){s.switchOn=v;}}],
+  lines:['SWITCH closes → electrons start moving','VOLTAGE pushes them','RESISTANCE slows them','current = electron flow rate'],
+  phases:['close','push','slow','flow'],
+  onInit(s){s.switchOn=true;s.t=0;},onReset(s){s.switchOn=true;s.t=0;},stage,
+  run(phase,s,ui){s.t+=1;const n=['close','push','slow','flow'].indexOf(phase)+1;ui.activeLine(n);
+    if(phase==='flow'){s.I=s.switchOn?s.V/s.R:0;ui.setVar('I',s.I,{display:s.I.toFixed(2)+'A',flash:true});}
+  }
+});
+</script></body></html>

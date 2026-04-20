@@ -1,0 +1,28 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Fuse</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const glow = Math.min(30, s.I*4);
+  const blown = s.I > s.rating;
+  return `<svg viewBox="0 0 540 240">
+    <rect width="540" height="240" fill="#F4E8CB"/>
+    <g transform="translate(120,100)"><rect width="60" height="60" fill="#FFD700" stroke="#264653" stroke-width="3"/><text x="30" y="38" text-anchor="middle" font-size="14">🔋</text></g>
+    <line x1="180" y1="130" x2="220" y2="130" stroke="#264653" stroke-width="3"/>
+    <g transform="translate(220,110)">
+      <rect width="100" height="40" fill="#FFF" stroke="#264653" stroke-width="3" rx="8"/>
+      ${blown ? '<text x="50" y="26" text-anchor="middle" font-size="12" font-weight="bold" fill="#E63946">💥 BLOWN</text>' : `<line x1="15" y1="20" x2="85" y2="20" stroke="${s.I>s.rating*0.7?'#E63946':'#666'}" stroke-width="${3+glow/8}"/>`}
+      <text x="50" y="56" text-anchor="middle" font-size="10" fill="#264653">${s.rating}A fuse</text>
+    </g>
+    <line x1="320" y1="130" x2="360" y2="130" stroke="#264653" stroke-width="3"/>
+    <g transform="translate(360,100)"><rect width="80" height="60" fill="${blown?'#CCC':'#E63946'}" stroke="#264653" stroke-width="3" rx="4"/><text x="40" y="38" text-anchor="middle" font-size="13" font-weight="bold" fill="#FFF">${blown?'OFF':'LOAD'}</text></g>
+    <text x="270" y="210" text-anchor="middle" font-size="13" font-weight="bold" fill="${blown?'#E63946':'#264653'}">${blown?'💥 fuse blew — saved the load':`current ${s.I}A / ${s.rating}A rating`}</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🔥 Fuse Sacrifices Itself',subtitle:'Fuse dies so your phone lives!',
+  vars:{I:{label:'💧 I',value:2,color:'#E63946'},rating:{label:'🔧 rating',value:5,color:'#264653'}},
+  extras:[{kind:'slider',id:'iS',label:'Current (A)',min:0,max:15,value:2,step:1,onInput(v,s){s.I=v;}},{kind:'slider',id:'rS',label:'Fuse rating (A)',min:1,max:10,value:5,step:1,onInput(v,s){s.rating=v;}}],
+  lines:['Current flows through fuse wire','Wire heats at I² × R','Exceed rating → wire melts','Circuit opens — load is saved'],
+  phases:['flow','heat','check','break'],onInit(s){s.I=2;s.rating=5;},onReset(s){s.I=2;s.rating=5;},stage,
+  run(p,s,ui){const n=['flow','heat','check','break'].indexOf(p)+1;ui.activeLine(n);if(p==='check'&&s.I>s.rating){ui.check(3,true);ui.narrate('🔥 wire melting!');}}
+});
+</script></body></html>

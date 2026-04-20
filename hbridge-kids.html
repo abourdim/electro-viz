@@ -1,0 +1,39 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>H-Bridge for Kids</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const on=s.sw;
+  const fwd=on.Q1&&on.Q4&&!on.Q2&&!on.Q3;
+  const rev=on.Q2&&on.Q3&&!on.Q1&&!on.Q4;
+  const shortC=(on.Q1&&on.Q3)||(on.Q2&&on.Q4);
+  const dir=fwd?1:rev?-1:0;
+  return `<svg viewBox="0 0 540 260">
+    <rect width="540" height="260" fill="#F4E8CB"/>
+    <line x1="100" y1="40" x2="440" y2="40" stroke="#E63946" stroke-width="3"/>
+    <text x="85" y="44" font-size="11" font-weight="bold" fill="#E63946">+V</text>
+    <line x1="100" y1="230" x2="440" y2="230" stroke="#264653" stroke-width="3"/>
+    <text x="85" y="234" font-size="11" font-weight="bold" fill="#264653">GND</text>
+    ${[['Q1',140,60,on.Q1],['Q2',380,60,on.Q2],['Q3',140,180,on.Q3],['Q4',380,180,on.Q4]].map(([n,x,y,v])=>`<rect x="${x-15}" y="${y-10}" width="50" height="30" rx="4" fill="${v?'#FFD700':'#DDD'}" stroke="#264653" stroke-width="2"/><text x="${x+10}" y="${y+10}" text-anchor="middle" font-weight="bold" font-size="12" fill="#264653">${n}</text>`).join('')}
+    <line x1="155" y1="40" x2="155" y2="60" stroke="${on.Q1?'#FF6B35':'#999'}" stroke-width="2"/>
+    <line x1="395" y1="40" x2="395" y2="60" stroke="${on.Q2?'#FF6B35':'#999'}" stroke-width="2"/>
+    <line x1="155" y1="210" x2="155" y2="230" stroke="${on.Q3?'#FF6B35':'#999'}" stroke-width="2"/>
+    <line x1="395" y1="210" x2="395" y2="230" stroke="${on.Q4?'#FF6B35':'#999'}" stroke-width="2"/>
+    <line x1="155" y1="90" x2="155" y2="170" stroke="#264653" stroke-width="2"/>
+    <line x1="395" y1="90" x2="395" y2="170" stroke="#264653" stroke-width="2"/>
+    <line x1="155" y1="130" x2="230" y2="130" stroke="#264653" stroke-width="3"/>
+    <line x1="310" y1="130" x2="395" y2="130" stroke="#264653" stroke-width="3"/>
+    <circle cx="270" cy="130" r="35" fill="#A8DADC" stroke="#264653" stroke-width="3"/>
+    <g transform="translate(270,130) rotate(${((Date.now()/4)*dir)%360})"><rect x="-4" y="-28" width="8" height="56" fill="#E63946"/></g>
+    ${shortC?'<text x="270" y="250" text-anchor="middle" font-size="14" font-weight="bold" fill="#E63946">💥 SHORT CIRCUIT!</text>':''}
+    <text x="270" y="245" text-anchor="middle" font-size="12" font-weight="bold" fill="#264653">${!shortC?(fwd?'▶️ FWD':rev?'◀️ REV':'🛑 stop'):''}</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🪢 H-Bridge for Kids',subtitle:'4 switches → forward, reverse… or BOOM!',
+  vars:{},
+  extras:[{kind:'toggle',id:'q1',label:'Q1',value:false,onToggle(v,s){s.sw.Q1=v;}},{kind:'toggle',id:'q2',label:'Q2',value:false,onToggle(v,s){s.sw.Q2=v;}},{kind:'toggle',id:'q3',label:'Q3',value:false,onToggle(v,s){s.sw.Q3=v;}},{kind:'toggle',id:'q4',label:'Q4',value:false,onToggle(v,s){s.sw.Q4=v;}}],
+  lines:['FWD: Q1 + Q4 ON','REV: Q2 + Q3 ON','Q1+Q3 or Q2+Q4 = SHORT 💥','OFF: all off = coast'],
+  phases:['fwd','rev','short','coast'],
+  onInit(s){s.sw={Q1:false,Q2:false,Q3:false,Q4:false};},onReset(s){s.sw={Q1:false,Q2:false,Q3:false,Q4:false};},stage,
+  run(phase,s,ui){ui.activeLine(['fwd','rev','short','coast'].indexOf(phase)+1);}
+});
+</script></body></html>

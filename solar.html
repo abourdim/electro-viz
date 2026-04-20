@@ -1,0 +1,29 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Solar cell</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const effective = s.light * Math.cos(Math.abs(s.angle) * Math.PI/180) * (1 - s.shade/100);
+  const V = 0.6 * (effective/100);
+  const I = 0.5 * (effective/100);
+  return `<svg viewBox="0 0 540 260">
+    <rect width="540" height="260" fill="#87CEEB"/>
+    <g transform="translate(100,60)"><text font-size="36" transform="rotate(${s.angle})" transform-origin="20 20">${s.light>30?'☀️':'🌥️'}</text></g>
+    ${Array.from({length:s.light/10|0},(_,i)=>`<line x1="${120+i*6}" y1="90" x2="${180+i*6 + Math.sin(s.angle*Math.PI/180)*40}" y2="170" stroke="#FFD700" stroke-width="1.5" opacity="0.6"/>`).join('')}
+    <g transform="translate(280,160)">
+      <rect width="${180}" height="60" fill="#1A1B2E" stroke="#264653" stroke-width="3"/>
+      <rect x="0" y="0" width="${180*(1-s.shade/100)}" height="60" fill="#1D3557"/>
+      ${s.shade>0?'<rect x="'+(180*(1-s.shade/100))+'" y="0" width="'+(180*s.shade/100)+'" height="60" fill="#333" opacity="0.8"/>':''}
+      ${Array.from({length:5},(_,i)=>`<line x1="0" y1="${10+i*12}" x2="180" y2="${10+i*12}" stroke="#888" stroke-width="0.5"/>`).join('')}
+    </g>
+    <g transform="translate(20,180)"><text font-size="12" font-weight="bold" fill="#264653">V=${V.toFixed(2)}V · I=${I.toFixed(2)}A · P=${(V*I).toFixed(2)}W</text></g>
+    <text x="270" y="240" text-anchor="middle" font-size="11" fill="#264653">angle=${s.angle}° · shade=${s.shade}% — shade any cell → series string craters</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'☀️ Solar Cell Theater',subtitle:'Photons → electrons → current!',
+  vars:{V:{label:'⚡ V',value:0,color:'#FFD700'},I:{label:'💧 I',value:0,color:'#E63946'}},
+  extras:[{kind:'slider',id:'lS',label:'Sun %',min:0,max:100,value:80,step:5,onInput(v,s){s.light=v;}},{kind:'slider',id:'aS',label:'Sun angle',min:-60,max:60,value:0,step:5,onInput(v,s){s.angle=v;}},{kind:'slider',id:'sS',label:'Shade %',min:0,max:100,value:0,step:5,onInput(v,s){s.shade=v;}}],
+  lines:['Photons hit silicon','Knock electrons free','Current flows','Angle + shade kill output'],
+  phases:['photon','knock','flow','loss'],onInit(s){s.light=80;s.angle=0;s.shade=0;s.V=0;s.I=0;},onReset(s){s.light=80;s.angle=0;s.shade=0;},stage,
+  run(p,s,ui){const n=['photon','knock','flow','loss'].indexOf(p)+1;ui.activeLine(n);if(p==='flow'){const e=s.light*Math.cos(Math.abs(s.angle)*Math.PI/180)*(1-s.shade/100);s.V=0.6*(e/100);s.I=0.5*(e/100);ui.setVar('V',s.V,{display:s.V.toFixed(2)+'V',flash:true});ui.setVar('I',s.I,{display:s.I.toFixed(2)+'A'});}}
+});
+</script></body></html>

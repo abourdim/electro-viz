@@ -1,0 +1,28 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Inductor</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  return `<svg viewBox="0 0 540 260">
+    <rect width="540" height="260" fill="#F4E8CB"/>
+    <g transform="translate(60,90)"><rect width="50" height="60" fill="#FFD700" stroke="#264653" stroke-width="2"/><text x="25" y="35" text-anchor="middle" font-size="11" font-weight="bold">${s.V}V</text></g>
+    <line x1="110" y1="120" x2="200" y2="120" stroke="#264653" stroke-width="3"/>
+    <g transform="translate(210,100)"><path d="M 0 20 Q 10 0 20 20 Q 30 40 40 20 Q 50 0 60 20 Q 70 40 80 20 Q 90 0 100 20" fill="none" stroke="#264653" stroke-width="3"/><text x="50" y="55" text-anchor="middle" font-size="11" fill="#264653">L = ${s.L} H</text></g>
+    <line x1="310" y1="120" x2="380" y2="120" stroke="#264653" stroke-width="3"/>
+    <g transform="translate(390,100)"><rect width="60" height="40" fill="${s.switchOn?'#40BF4A':'#E63946'}" stroke="#264653" stroke-width="2"/><text x="30" y="25" text-anchor="middle" font-size="10" font-weight="bold" fill="#FFF">${s.switchOn?'ON':'OFF'}</text></g>
+    <text x="260" y="180" text-anchor="middle" font-size="12" font-weight="bold" fill="#264653">I = ${s.I.toFixed(2)}A  · back-EMF on switch-off: ${s.spike.toFixed(0)}V ${s.spike>50?'⚡ SPARK!':''}</text>
+    ${s.spike>50?`<text x="420" y="100" font-size="18">⚡</text>`:''}
+    <text x="270" y="220" text-anchor="middle" font-size="11" fill="#264653">inductor resists CHANGE in current — like a flywheel</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🧲 Inductor',subtitle:'Flywheel for electricity — resists change, sparks on switch-off',
+  vars:{I:{label:'I',value:0,color:'#457B9D'},spike:{label:'⚡ spike',value:0,color:'#E63946'}},
+  extras:[{kind:'slider',id:'lS',label:'L (H)',min:1,max:50,value:10,step:1,onInput(v,s){s.L=v;}},{kind:'toggle',id:'sW',label:'Switch',value:true,onToggle(v,s){if(s.switchOn&&!v)s.spike=s.L*s.I*20;else s.spike=0;s.switchOn=v;}}],
+  lines:['SWITCH on → current ramps slowly','EQUILIBRIUM: I = V / R_coil','SWITCH off → huge back-EMF','DIODE clamps the spike'],
+  phases:['on','ramp','off','spike'],
+  onInit(s){s.V=9;s.L=10;s.switchOn=true;s.I=0;s.spike=0;},onReset(s){s.switchOn=true;s.I=0;s.spike=0;},stage,
+  run(phase,s,ui){const n=['on','ramp','off','spike'].indexOf(phase)+1;ui.activeLine(n);
+    if(phase==='ramp'){const target=s.switchOn?s.V/2:0;s.I+=(target-s.I)/Math.max(1,s.L/2);ui.setVar('I',s.I,{display:s.I.toFixed(2)+'A',flash:true});}
+    if(phase==='spike'){ui.setVar('spike',s.spike,{display:s.spike.toFixed(0)+'V'});if(s.spike>50)ui.check(4,true);s.spike*=0.7;}
+  }
+});
+</script></body></html>

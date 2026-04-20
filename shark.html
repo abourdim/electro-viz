@@ -1,0 +1,25 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Shark electroreception</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const dist = Math.abs(s.fishX - 100);
+  const intensity = Math.max(0, 1 - dist/200);
+  return `<svg viewBox="0 0 540 240">
+    <rect width="540" height="240" fill="#1D3557"/>
+    ${Array.from({length:12},(_,i)=>`<circle cx="${s.fishX + Math.cos(i)*30}" cy="${120 + Math.sin(i)*30}" r="${10 + i*5}" fill="none" stroke="#FFD700" stroke-width="1" opacity="${0.4 - i*0.03}"/>`).join('')}
+    <g transform="translate(${s.fishX},120)"><text font-size="28">🐟</text><text y="26" text-anchor="middle" font-size="10" fill="#FFF" font-weight="bold">electric field</text></g>
+    <g transform="translate(60,100)">
+      <text font-size="40">🦈</text>
+      ${Array.from({length:5},(_,i)=>`<circle cx="${10+i*6}" cy="${15}" r="2" fill="${intensity>0.3?'#FFD700':'#666'}" opacity="${intensity}"/>`).join('')}
+    </g>
+    <text x="270" y="215" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFF">sharks have ampullae of Lorenzini — sense 5 nV/cm bioelectric fields!</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🦈 Shark Electroreception',subtitle:'Biology\'s best voltmeter!',
+  vars:{intensity:{label:'⚡ intensity',value:0,color:'#FFD700'}},
+  extras:[{kind:'slider',id:'fS',label:'Fish distance',min:110,max:500,value:300,step:10,onInput(v,s){s.fishX=v;}}],
+  lines:['Every heartbeat → tiny electric field','Field spreads through saltwater','Shark pits (ampullae) detect nV level','Lights up → strikes target'],
+  phases:['beat','spread','detect','strike'],onInit(s){s.fishX=300;s.intensity=0;},onReset(s){s.fishX=300;s.intensity=0;},stage,
+  run(p,s,ui){const n=['beat','spread','detect','strike'].indexOf(p)+1;ui.activeLine(n);if(p==='detect'){const d=Math.abs(s.fishX-100);s.intensity=Math.max(0,1-d/200);ui.setVar('intensity',(s.intensity*100).toFixed(0),{display:(s.intensity*100).toFixed(0)+'%',flash:true});}}
+});
+</script></body></html>

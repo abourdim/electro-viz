@@ -1,0 +1,32 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Induction charging</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const coupling = Math.max(0, 1 - s.dist/100);
+  const vSec = 5 * coupling;
+  return `<svg viewBox="0 0 540 240">
+    <rect width="540" height="240" fill="#F4E8CB"/>
+    <g transform="translate(80,120)">
+      ${[0,1,2,3,4].map(i=>`<ellipse cx="${i*8}" cy="0" rx="8" ry="25" fill="none" stroke="#FFD700" stroke-width="3"/>`).join('')}
+      <text y="55" text-anchor="middle" font-size="11" font-weight="bold" fill="#264653">PRIMARY · AC</text>
+    </g>
+    ${Array.from({length:5},(_,i)=>`<path d="M 140 ${100-i*5} Q ${200+i*20} ${70-i*10}, ${260+s.dist} ${100-i*5}" fill="none" stroke="#457B9D" stroke-width="2" opacity="${0.7 - i*0.1}"/>`).join('')}
+    <g transform="translate(${300+s.dist},120)">
+      ${[0,1,2,3,4].map(i=>`<ellipse cx="${i*8}" cy="0" rx="8" ry="25" fill="none" stroke="#E63946" stroke-width="3"/>`).join('')}
+      <text y="55" text-anchor="middle" font-size="11" font-weight="bold" fill="#264653">SECONDARY</text>
+    </g>
+    <g transform="translate(${360+s.dist},100)">
+      <rect width="80" height="40" fill="#FFF" stroke="#264653" stroke-width="2" rx="4"/>
+      <text x="40" y="26" text-anchor="middle" font-size="13" font-weight="bold" fill="${vSec>2?'#40BF4A':'#E63946'}">${vSec.toFixed(1)}V</text>
+    </g>
+    <text x="270" y="210" text-anchor="middle" font-size="12" font-weight="bold" fill="#264653">no wires · AC makes field · field induces voltage · closer = stronger</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🧲 Wireless Induction',subtitle:'How phone chargers work!',
+  vars:{dist:{label:'📏 gap',value:20,color:'#457B9D'},vSec:{label:'📟 Vsec',value:0,color:'#40BF4A'}},
+  extras:[{kind:'slider',id:'dS',label:'Gap (mm)',min:0,max:80,value:20,step:5,onInput(v,s){s.dist=v;}}],
+  lines:['AC in primary coil','Changing current → changing field','Field cuts secondary coil','Induced EMF drives current'],
+  phases:['ac','field','cut','emf'],onInit(s){s.dist=20;s.vSec=0;},onReset(s){s.dist=20;s.vSec=0;},stage,
+  run(p,s,ui){const n=['ac','field','cut','emf'].indexOf(p)+1;ui.activeLine(n);if(p==='emf'){const c=Math.max(0,1-s.dist/100);s.vSec=5*c;ui.setVar('vSec',s.vSec,{display:s.vSec.toFixed(1)+'V',flash:true});}}
+});
+</script></body></html>

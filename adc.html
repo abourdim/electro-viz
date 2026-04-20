@@ -1,0 +1,30 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>ADC staircase</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const W=500, H=140;
+  const levels = Math.pow(2, s.bits);
+  const quant = v => Math.round(v * levels / 2) * 2 / levels;
+  const sine = Array.from({length:400},(_,i)=>{const x=i; const y = Math.sin(x*0.025); return {x,y};});
+  const smooth = sine.map(p=>`${(p.x/400)*W},${H/2 - p.y*H/2.5}`).join(' ');
+  const stair = [];
+  const step = Math.max(1, Math.floor(400 / s.rate));
+  for (let i=0;i<400;i+=step){const p=sine[i];const qY = quant(p.y);stair.push({x:i,y:qY});}
+  const stairPath = stair.map((p,i)=>{const nx = stair[i+1]?stair[i+1].x:400; return `${(p.x/400)*W},${H/2 - p.y*H/2.5} ${(nx/400)*W},${H/2 - p.y*H/2.5}`;}).join(' ');
+  return `<svg viewBox="0 0 540 240">
+    <rect x="10" y="10" width="${W+20}" height="${H+20}" fill="#0A0F1E" stroke="#FFD700" stroke-width="3" rx="8"/>
+    <polyline points="${smooth}" fill="none" stroke="#457B9D" stroke-width="1.5" transform="translate(10,10)"/>
+    <polyline points="${stairPath}" fill="none" stroke="#FFD700" stroke-width="2.5" transform="translate(10,10)"/>
+    <text x="20" y="30" font-size="11" fill="#457B9D" font-weight="bold">analog in</text>
+    <text x="120" y="30" font-size="11" fill="#FFD700" font-weight="bold">digital out (${s.bits}-bit · ${s.rate}× sample)</text>
+    <text x="270" y="200" text-anchor="middle" font-size="12" fill="#264653" font-weight="bold">${s.rate<10?'⚠️ aliasing — under-sampled':s.bits<4?'⚠️ staircase obvious':'✅ looks smooth'}</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'📟 ADC Staircase',subtitle:'Analog → digital has consequences!',
+  vars:{bits:{label:'🔢 bits',value:4,color:'#FFD700'},rate:{label:'⏱️ rate',value:30,color:'#457B9D'}},
+  extras:[{kind:'slider',id:'bS',label:'Bits',min:2,max:12,value:4,step:1,onInput(v,s){s.bits=v;}},{kind:'slider',id:'rS',label:'Sample rate',min:4,max:100,value:30,step:2,onInput(v,s){s.rate=v;}}],
+  lines:['Sample wave at intervals','Quantize to nearest step','Staircase = discrete approximation','More bits + faster samples = smoother'],
+  phases:['sample','quantize','emit','compare'],onInit(s){s.bits=4;s.rate=30;},onReset(s){s.bits=4;s.rate=30;},stage,
+  run(p,s,ui){const n=['sample','quantize','emit','compare'].indexOf(p)+1;ui.activeLine(n);}
+});
+</script></body></html>

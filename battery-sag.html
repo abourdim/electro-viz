@@ -1,0 +1,32 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Battery Sag</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const I = s.Vopen / (s.rInt + s.load);
+  const Vterm = s.Vopen - I * s.rInt;
+  return `<svg viewBox="0 0 540 240">
+    <rect width="540" height="240" fill="#F4E8CB"/>
+    <g transform="translate(60,80)">
+      <rect width="140" height="80" fill="#FFD700" stroke="#264653" stroke-width="3" rx="6"/>
+      <rect x="15" y="20" width="30" height="40" fill="#E63946" stroke="#264653" stroke-width="1"/>
+      <text x="30" y="45" text-anchor="middle" font-size="10" font-weight="bold" fill="#FFF">r_int</text>
+      <text x="85" y="35" text-anchor="middle" font-size="11" font-weight="bold">hidden</text>
+      <text x="85" y="52" text-anchor="middle" font-size="11" font-weight="bold">resistance!</text>
+    </g>
+    <g transform="translate(20,180)"><text font-size="12" font-weight="bold" fill="#264653">V_open = ${s.Vopen}V · r_int = ${s.rInt}Ω · load = ${s.load}Ω</text></g>
+    <g transform="translate(350,80)">
+      <rect width="100" height="80" fill="#FFF" stroke="#264653" stroke-width="3" rx="4"/>
+      <text x="50" y="30" text-anchor="middle" font-size="10" font-weight="bold" fill="#264653">V at load</text>
+      <text x="50" y="56" text-anchor="middle" font-size="22" font-weight="bold" fill="${Vterm<s.Vopen*0.85?'#E63946':'#40BF4A'}">${Vterm.toFixed(2)}V</text>
+    </g>
+    <text x="270" y="210" text-anchor="middle" font-size="12" fill="#264653">heavy load → more I → more drop across r_int → V_terminal sags</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🪫 Battery Sag',subtitle:'Batteries have a hidden resistor inside!',
+  vars:{Vopen:{label:'🔋 V open',value:9,color:'#FFD700'},rInt:{label:'🔧 r_int',value:0.3,color:'#E63946'},Vterm:{label:'📉 V load',value:0,color:'#40BF4A'}},
+  extras:[{kind:'slider',id:'vS',label:'V open',min:1,max:12,value:9,step:0.5,onInput(v,s){s.Vopen=v;}},{kind:'slider',id:'rS',label:'r_int Ω',min:0.1,max:3,value:0.3,step:0.1,onInput(v,s){s.rInt=v;}},{kind:'slider',id:'lS',label:'Load Ω',min:0.5,max:30,value:5,step:0.5,onInput(v,s){s.load=v;}}],
+  lines:['Battery has internal resistance r_int','Load pulls current through both','Voltage drops across r_int','V_terminal = V_open − I × r_int'],
+  phases:['read','current','drop','show'],onInit(s){s.Vopen=9;s.rInt=0.3;s.load=5;},onReset(s){s.Vopen=9;s.rInt=0.3;s.load=5;},stage,
+  run(p,s,ui){const n=['read','current','drop','show'].indexOf(p)+1;ui.activeLine(n);if(p==='show'){const I=s.Vopen/(s.rInt+s.load);s.Vterm=s.Vopen-I*s.rInt;ui.setVar('Vterm',s.Vterm,{display:s.Vterm.toFixed(2)+'V',flash:true});}}
+});
+</script></body></html>

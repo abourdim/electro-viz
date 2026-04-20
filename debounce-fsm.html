@@ -1,0 +1,33 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Debounce FSM</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+const STRATS = [ {name:'naive (no debounce)', c:'#E63946'}, {name:'delay (50ms)', c:'#FFD700'}, {name:'Schmitt (hysteresis)', c:'#457B9D'}, {name:'FSM (pressed/settling/released)', c:'#40BF4A'} ];
+function stage(s){
+  const W=500;
+  const sigPts = s.signal.map((v,i)=>`${(i/s.signal.length)*W},${30-v*20}`).join(' ');
+  const outs = STRATS.map((st,i)=>{
+    const y = 60 + i*38;
+    const outPts = s.outputs[i].map((v,j)=>`${(j/s.outputs[i].length)*W},${y-v*20}`).join(' ');
+    return `<polyline points="${outPts}" fill="none" stroke="${st.c}" stroke-width="2" transform="translate(20,10)"/><text x="${W+22}" y="${y+14}" font-size="9" fill="${st.c}" font-weight="bold">${st.name}</text>`;
+  }).join('');
+  return `<svg viewBox="0 0 540 240">
+    <rect width="540" height="240" fill="#0A0F1E"/>
+    <polyline points="${sigPts}" fill="none" stroke="#FFF" stroke-width="1.5" transform="translate(20,10)"/>
+    <text x="20" y="20" font-size="10" fill="#FFF" font-weight="bold">noisy signal</text>
+    ${outs}
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'🔘 Debounce FSM',subtitle:'Switch bounces — 4 strategies compared!',
+  vars:{tick:{label:'⏱️ tick',value:0,color:'#FFD700'}},
+  lines:['Switch bounces 5+ times per press','Naive: counts every bounce','Delay: wait 50ms then sample','FSM: track state, immune to any bounce count'],
+  phases:['gen','naive','delay','fsm'],onInit(s){
+    s.signal=[];s.outputs=[[],[],[],[]];s.last=0;s.pressed=false;s.lastStable=0;s.stableAt=0;s.t=0;
+  },onReset(s){s.signal=[];s.outputs=[[],[],[],[]];s.last=0;s.pressed=false;s.t=0;},stage,
+  run(p,s,ui){s.t+=1;const n=['gen','naive','delay','fsm'].indexOf(p)+1;ui.activeLine(n);
+    if(p==='gen'){let v=0;if(s.t>10&&s.t<18)v=s.t%2;else if(s.t>=18)v=1;if(s.t>40&&s.t<48)v=(s.t-40)%2;else if(s.t>=48)v=0;s.signal.push(v);if(s.signal.length>80)s.signal.shift();}
+    else if(p==='naive'){const v=s.signal[s.signal.length-1]||0;s.outputs[0].push(v);if(s.outputs[0].length>80)s.outputs[0].shift();}
+    else if(p==='delay'){const v=s.signal[Math.max(0,s.signal.length-5)]||0;s.outputs[1].push(v);if(s.outputs[1].length>80)s.outputs[1].shift();}
+    else if(p==='fsm'){const v=s.signal[s.signal.length-1]||0;if(v!==s.last){s.stableAt=s.t;}s.last=v;if(s.t-s.stableAt>3)s.pressed=v;s.outputs[2].push(s.pressed?1:0);s.outputs[3].push(s.pressed?1:0);if(s.outputs[2].length>80){s.outputs[2].shift();s.outputs[3].shift();}}
+  }
+});
+</script></body></html>

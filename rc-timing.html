@@ -1,0 +1,29 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>RC Timing</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const tau = s.R * s.C / 100;
+  const W=460, H=140;
+  let path = `M 10 ${H+10}`;
+  for(let t=0;t<=100;t++){const frac=1-Math.exp(-t/10/tau);path+=` L ${10+(t/100)*W} ${10+H - frac*H}`;}
+  return `<svg viewBox="0 0 540 240">
+    <rect x="10" y="10" width="${W+20}" height="${H+20}" fill="#0A0F1E" stroke="#FFD700" stroke-width="3" rx="8"/>
+    <line x1="10" y1="10" x2="${W+30}" y2="10" stroke="#40BF4A" stroke-dasharray="4 4"/>
+    <text x="20" y="28" fill="#40BF4A" font-size="10" font-weight="bold">Vmax</text>
+    <path d="${path}" fill="none" stroke="#FFD700" stroke-width="3"/>
+    <line x1="${10+(tau/5)*W}" y1="10" x2="${10+(tau/5)*W}" y2="${10+H}" stroke="#FF6B35" stroke-dasharray="3 3"/>
+    <text x="${10+(tau/5)*W+4}" y="${10+H-4}" fill="#FF6B35" font-size="10" font-weight="bold">1τ</text>
+    <text x="20" y="210" font-size="14" font-weight="bold" fill="#264653">τ = R × C = ${s.R} × ${s.C} = ${(s.R*s.C).toFixed(0)}ms · blink rate ≈ ${(1/(tau*2)).toFixed(1)} Hz</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'⏲️ RC Timing',subtitle:'Pick R and C → set the blink rate!',
+  vars:{tau:{label:'τ',value:100,color:'#FF6B35',note:'ms'}},
+  extras:[{kind:'slider',id:'rS',label:'R (kΩ)',min:1,max:100,value:10,step:1,onInput(v,s){s.R=v;}},{kind:'slider',id:'cS',label:'C (µF)',min:1,max:100,value:10,step:1,onInput(v,s){s.C=v;}}],
+  lines:['CAP charges through R','τ = R × C = time constant','Higher τ = slower blink','blink_rate ≈ 1 / (2τ)'],
+  phases:['read','compute','plot','rate'],
+  onInit(s){s.R=10;s.C=10;},onReset(s){s.R=10;s.C=10;},stage,
+  run(phase,s,ui){const n=['read','compute','plot','rate'].indexOf(phase)+1;ui.activeLine(n);
+    if(phase==='compute'){const t=s.R*s.C;ui.setVar('tau',t,{display:t.toFixed(0)+'ms',flash:true});}
+  }
+});
+</script></body></html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>AC vs DC</title><link rel="stylesheet" href="maker-viz.css"></head><body>
+<a class="mv-nav" href="index.html">← Back</a><div id="app"></div>
+<script src="maker-viz.js"></script><script>
+function stage(s){
+  const W=460,H=60,N=80;
+  const ac=Array.from({length:N},(_,i)=>Math.sin(i/N*Math.PI*2*s.freq));
+  const half=ac.map(v=>Math.max(0,v));
+  const full=ac.map(v=>Math.abs(v));
+  const dc=Array.from({length:N},()=>0.8);
+  const plot=(arr,y,c)=>{const pts=arr.map((v,i)=>`${(i/(N-1))*W},${y+H/2 - v*H/2}`).join(' ');return `<polyline points="${pts}" fill="none" stroke="${c}" stroke-width="2"/>`;}
+  return `<svg viewBox="0 0 540 260">
+    <rect x="10" y="10" width="${W+20}" height="${H*4+20}" fill="#0A0F1E" stroke="#FFD700" stroke-width="2" rx="6"/>
+    <text x="20" y="26" fill="#E63946" font-size="10" font-weight="bold">AC sine</text>
+    ${plot(ac,30,'#E63946')}
+    <text x="20" y="86" fill="#FFD700" font-size="10" font-weight="bold">half-wave rectifier</text>
+    ${plot(half,90,'#FFD700')}
+    <text x="20" y="146" fill="#FF6B35" font-size="10" font-weight="bold">full-wave bridge</text>
+    ${plot(full,150,'#FF6B35')}
+    <text x="20" y="206" fill="#40BF4A" font-size="10" font-weight="bold">DC (flat)</text>
+    ${plot(dc,210,'#40BF4A')}
+    <text x="270" y="250" text-anchor="middle" font-size="12" font-weight="bold" fill="#264653">each stage cleans the wave further · add cap → smooth DC</text>
+  </svg>`;
+}
+MakerViz.create({mount:'#app',title:'⚡ AC vs DC',subtitle:'Watch how we turn wiggle into flat!',
+  vars:{freq:{label:'f',value:1,color:'#E63946'}},
+  extras:[{kind:'slider',id:'fS',label:'freq',min:1,max:5,value:1,step:1,onInput(v,s){s.freq=v;}}],
+  lines:['AC wall socket: ±V sine','Half-wave diode: keep positive','Full bridge: flip negatives up','Big cap smooths → DC'],
+  phases:['ac','half','full','dc'],
+  onInit(s){s.freq=1;},stage,
+  run(phase,s,ui){ui.activeLine(['ac','half','full','dc'].indexOf(phase)+1);}
+});
+</script></body></html>
